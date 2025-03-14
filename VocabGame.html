@@ -1,0 +1,2762 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>TOEIC Vocabulary Game</title>
+
+  <!-- CSS -->
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Prompt', sans-serif;
+      background-color: #f5f7fa;
+      color: #333;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow-x: hidden;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .app-container {
+      width: 100%;
+      max-width: 480px;
+      height: 100vh;
+      max-height: 850px;
+      margin: 0 auto;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .screen {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+      display: flex;
+      flex-direction: column;
+      padding: 16px;
+      border-radius: 16px;
+      overflow: hidden;
+      transition: all 0.3s ease;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .screen.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .scrollable-content {
+      flex: 1;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+      padding-bottom: 16px;
+      /* Scrollbar styling for webkit browsers */
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+    }
+
+    .scrollable-content::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .scrollable-content::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .scrollable-content::-webkit-scrollbar-thumb {
+      background-color: rgba(255, 255, 255, 0.3);
+      border-radius: 20px;
+    }
+
+    .gradient-bg {
+      background-image: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      color: white;
+    }
+
+    /* Header styles */
+    .game-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      z-index: 10;
+    }
+
+    .lives {
+      display: flex;
+      gap: 4px;
+      background-color: rgba(0, 0, 0, 0.2);
+      padding: 6px 10px;
+      border-radius: 8px;
+      backdrop-filter: blur(4px);
+    }
+
+    .heart {
+      width: 18px;
+      height: 18px;
+      fill: #ef4444;
+      stroke: #ef4444;
+    }
+
+    .heart.empty {
+      fill: transparent;
+      stroke: #9ca3af;
+      opacity: 0.6;
+    }
+
+    .timer,
+    .score {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background-color: rgba(0, 0, 0, 0.2);
+      padding: 6px 10px;
+      border-radius: 8px;
+      backdrop-filter: blur(4px);
+    }
+
+    /* Progress bars */
+    .progress-bar {
+      width: 100%;
+      height: 6px;
+      background-color: rgba(0, 0, 0, 0.2);
+      border-radius: 99px;
+      margin-bottom: 10px;
+      overflow: hidden;
+      backdrop-filter: blur(4px);
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background-color: white;
+      border-radius: 99px;
+      transition: width 0.5s ease;
+    }
+
+    .time-bar-fill {
+      transition: width 0.3s linear;
+    }
+
+    .time-bar-fill.warning {
+      background-color: #f59e0b;
+    }
+
+    .time-bar-fill.danger {
+      background-color: #ef4444;
+    }
+
+    /* Level indicator */
+    .level-indicator {
+      text-align: center;
+      margin-bottom: 12px;
+      z-index: 10;
+    }
+
+    .level-badge {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 500;
+      padding: 4px 12px;
+      border-radius: 99px;
+      background-color: rgba(0, 0, 0, 0.2);
+      backdrop-filter: blur(4px);
+    }
+
+    .combo-badge {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 500;
+      padding: 4px 12px;
+      border-radius: 99px;
+      background-color: #f59e0b;
+      color: #7c2d12;
+      margin-left: 8px;
+    }
+
+    /* Card styles */
+    .word-card {
+      background-color: rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 16px;
+      flex: 1;
+      min-height: 280px;
+      max-height: 320px;
+      display: flex;
+      flex-direction: column;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      backdrop-filter: blur(4px);
+      z-index: 10;
+    }
+
+    .word-image {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 16px;
+      position: relative;
+    }
+
+    .word-image img {
+      width: 100%;
+      max-width: 240px;
+      height: auto;
+      max-height: 160px;
+      object-fit: cover;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s ease;
+    }
+
+    .word-image:hover img {
+      transform: scale(1.03);
+    }
+
+    .word-image::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(to bottom, transparent 60%, rgba(0, 0, 0, 0.4));
+      border-radius: 8px;
+      pointer-events: none;
+    }
+
+    .word-text {
+      text-align: center;
+    }
+
+    .word-text h2 {
+      font-size: 26px;
+      font-weight: 700;
+      margin-bottom: 4px;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .word-text p {
+      font-size: 14px;
+      opacity: 0.7;
+    }
+
+    .sound-btn {
+      background: transparent;
+      border: none;
+      color: white;
+      cursor: pointer;
+      opacity: 0.8;
+      transition: opacity 0.2s;
+      margin-top: 8px;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .sound-btn:hover {
+      opacity: 1;
+    }
+
+    /* Option buttons */
+    .options-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 12px;
+      z-index: 10;
+    }
+
+    .option-btn {
+      padding: 12px;
+      border-radius: 8px;
+      border: none;
+      background-color: rgba(255, 255, 255, 0.1);
+      color: white;
+      font-family: 'Prompt', sans-serif;
+      font-size: 15px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+      backdrop-filter: blur(4px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .option-btn:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+      transform: translateY(-2px);
+    }
+
+    .option-btn:active {
+      transform: scale(0.98);
+    }
+
+    .option-btn.correct {
+      background-color: #10b981;
+      border-color: #059669;
+      color: white;
+    }
+
+    .option-btn.wrong {
+      background-color: #ef4444;
+      border-color: #dc2626;
+      color: white;
+    }
+
+    .option-btn.highlight {
+      background-color: #10b981;
+      border-color: #059669;
+      color: white;
+    }
+
+    .option-btn:disabled {
+      cursor: not-allowed;
+      opacity: 0.8;
+    }
+
+    .timeout-message {
+      text-align: center;
+      color: #fca5a5;
+      margin-bottom: 12px;
+      animation: fadeIn 0.5s ease;
+    }
+
+    /* Home screen */
+    .home-screen {
+      text-align: center;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .home-title {
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 4px;
+      letter-spacing: 1px;
+    }
+
+    .home-subtitle {
+      font-size: 14px;
+      opacity: 0.8;
+      margin-bottom: 32px;
+    }
+
+    .home-image {
+      margin-bottom: 32px;
+      position: relative;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+    }
+
+    .home-image img {
+      width: 100%;
+      max-width: 280px;
+      height: auto;
+      aspect-ratio: 16/9;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+      border: 2px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .icon-badge {
+      position: absolute;
+      bottom: -16px;
+      right: calc(50% - 156px);
+      background-color: #fbbf24;
+      color: #92400e;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      transform: rotate(12deg);
+    }
+
+    .btn-container {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      width: 100%;
+      max-width: 280px;
+    }
+
+    .btn-primary {
+      padding: 14px 24px;
+      border-radius: 8px;
+      border: none;
+      background-color: white;
+      color: #6366f1;
+      font-family: 'Prompt', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+
+    .btn-secondary {
+      padding: 14px 24px;
+      border-radius: 8px;
+      border: none;
+      background-color: rgba(255, 255, 255, 0.2);
+      color: white;
+      font-family: 'Prompt', sans-serif;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      backdrop-filter: blur(4px);
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .btn-secondary:hover {
+      background-color: rgba(255, 255, 255, 0.3);
+      transform: translateY(-2px);
+    }
+
+    .stars-badge {
+      margin-top: 32px;
+      display: inline-flex;
+      align-items: center;
+      background-color: rgba(255, 255, 255, 0.2);
+      padding: 8px 16px;
+      border-radius: 99px;
+      backdrop-filter: blur(4px);
+    }
+
+    .stars-icon {
+      margin-right: 8px;
+      color: #fbbf24;
+    }
+
+    .home-footer {
+      margin-top: 24px;
+      font-size: 14px;
+      opacity: 0.8;
+      text-align: center;
+    }
+
+    /* Summary screen */
+    .summary-screen {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    .summary-screen h1 {
+      font-size: 24px;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 16px;
+      letter-spacing: 0.5px;
+    }
+
+    .summary-card {
+      background-color: rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      backdrop-filter: blur(4px);
+    }
+
+    .summary-score {
+      text-align: center;
+      margin-bottom: 16px;
+    }
+
+    .score-value {
+      font-size: 42px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      animation: float 3s ease-in-out infinite;
+    }
+
+    .score-label {
+      font-size: 14px;
+      opacity: 0.8;
+    }
+
+    .stats-grid {
+      display: flex;
+      justify-content: space-around;
+      text-align: center;
+    }
+
+    .stat-item {
+      background-color: rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      padding: 12px;
+      transition: transform 0.2s;
+      min-width: 70px;
+    }
+
+    .stat-item:hover {
+      transform: scale(1.05);
+    }
+
+    .stat-value {
+      font-size: 24px;
+      font-weight: 600;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      opacity: 0.7;
+    }
+
+    .stars-earned {
+      margin-top: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .stars-earned-badge {
+      display: inline-flex;
+      align-items: center;
+      background-color: rgba(251, 191, 36, 0.2);
+      padding: 6px 12px;
+      border-radius: 99px;
+    }
+
+    .stars-earned-icon {
+      margin-right: 6px;
+      color: #fbbf24;
+    }
+
+    .stars-earned-text {
+      font-weight: 500;
+      color: #fbbf24;
+    }
+
+    .missed-words-section {
+      margin-bottom: 16px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      max-height: 35vh;
+    }
+
+    .missed-words-title {
+      display: flex;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 16px;
+      font-weight: 500;
+    }
+
+    .missed-words-list {
+      background-color: rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      max-height: 100%;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      backdrop-filter: blur(4px);
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+    }
+
+    .missed-words-list::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .missed-words-list::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .missed-words-list::-webkit-scrollbar-thumb {
+      background-color: rgba(255, 255, 255, 0.3);
+      border-radius: 20px;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 8px;
+      margin-top: 16px;
+      margin-bottom: 16px;
+    }
+
+    .missed-words-icon {
+      margin-right: 8px;
+    }
+
+    .missed-word-item {
+      padding: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: background-color 0.2s;
+    }
+
+    .missed-word-item:hover {
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+
+    .missed-word-item:last-child {
+      border-bottom: none;
+    }
+
+    .missed-word-text {
+      flex: 1;
+    }
+
+    .missed-word-text .word {
+      font-weight: 500;
+    }
+
+    .missed-word-text .meaning {
+      font-size: 12px;
+      opacity: 0.8;
+    }
+
+    .missed-word-sound {
+      background: transparent;
+      border: none;
+      color: white;
+      cursor: pointer;
+      opacity: 0.7;
+      transition: opacity 0.2s;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .missed-word-sound:hover {
+      opacity: 1;
+    }
+
+    .btn-icon {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 10px;
+    }
+
+    /* Review screen */
+    .review-screen .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .back-btn {
+      background-color: rgba(255, 255, 255, 0.1);
+      border: none;
+      color: white;
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      backdrop-filter: blur(4px);
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .back-btn:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .review-card {
+      background-color: rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      backdrop-filter: blur(4px);
+      transition: transform 0.3s ease;
+    }
+
+    .review-card:hover {
+      transform: scale(1.02);
+    }
+
+    .review-word {
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .review-pos {
+      font-size: 14px;
+      opacity: 0.7;
+      margin-bottom: 16px;
+    }
+
+    .review-sound {
+      margin-bottom: 24px;
+      background: transparent;
+      border: none;
+      color: white;
+      cursor: pointer;
+      opacity: 0.8;
+      transition: all 0.2s;
+      padding: 8px;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .review-sound:hover {
+      opacity: 1;
+      transform: scale(1.1);
+    }
+
+    .meaning-section {
+      text-align: center;
+      animation: fadeInUp 0.5s ease;
+    }
+
+    .meaning-text {
+      font-size: 24px;
+      font-weight: 600;
+      color: #fbbf24;
+      margin-bottom: 4px;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+
+    .related-words-title {
+      font-size: 14px;
+      font-weight: 500;
+      margin: 16px 0 8px;
+      opacity: 0.8;
+    }
+
+    .related-words-list {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .related-word-tag {
+      padding: 6px 12px;
+      background-color: rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      font-size: 13px;
+      transition: background-color 0.2s;
+    }
+
+    .related-word-tag:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .show-meaning-btn {
+      padding: 10px 20px;
+      background-color: white;
+      color: #6366f1;
+      border: none;
+      border-radius: 8px;
+      font-family: 'Prompt', sans-serif;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .show-meaning-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+    }
+
+    .show-meaning-btn:active {
+      transform: scale(0.98);
+    }
+
+    .review-navigation {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: auto;
+      width: 100%;
+    }
+
+    .review-nav-btn {
+      padding: 10px 20px;
+      border-radius: 8px;
+      border: none;
+      font-family: 'Prompt', sans-serif;
+      font-size: 15px;
+      cursor: pointer;
+      transition: all 0.2s;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .prev-btn {
+      background-color: rgba(255, 255, 255, 0.1);
+      color: white;
+      backdrop-filter: blur(4px);
+    }
+
+    .prev-btn:hover:not(:disabled) {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .prev-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .next-btn {
+      background-color: white;
+      color: #6366f1;
+      font-weight: 500;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .next-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+    }
+
+    .pagination {
+      font-size: 13px;
+      background-color: rgba(0, 0, 0, 0.2);
+      padding: 4px 12px;
+      border-radius: 99px;
+      backdrop-filter: blur(4px);
+    }
+
+    /* History screen */
+    .history-screen .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .history-list {
+      background-color: rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      flex: 1;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      backdrop-filter: blur(4px);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .history-header {
+      padding: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      background-color: rgba(0, 0, 0, 0.2);
+    }
+
+    .history-header-col {
+      font-weight: 500;
+    }
+
+    .col-word {
+      flex: 1;
+    }
+
+    .col-meaning {
+      width: 100px;
+      text-align: center;
+    }
+
+    .col-errors {
+      width: 70px;
+      text-align: center;
+    }
+
+    .history-items {
+      overflow-y: auto;
+      flex: 1;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+    }
+
+    .history-items::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .history-items::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .history-items::-webkit-scrollbar-thumb {
+      background-color: rgba(255, 255, 255, 0.3);
+      border-radius: 20px;
+    }
+
+    .history-item {
+      padding: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      transition: background-color 0.2s;
+    }
+
+    .history-item:hover {
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+
+    .history-item-col {
+      display: flex;
+      align-items: center;
+    }
+
+    .history-word {
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+    }
+
+    .history-pos {
+      font-size: 11px;
+      opacity: 0.7;
+    }
+
+    .history-meaning {
+      font-size: 13px;
+    }
+
+    .error-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 99px;
+      font-size: 12px;
+    }
+
+    .error-low {
+      background-color: rgba(251, 191, 36, 0.3);
+      color: white;
+    }
+
+    .error-high {
+      background-color: rgba(239, 68, 68, 0.3);
+      color: white;
+    }
+
+    .empty-history {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      opacity: 0.8;
+    }
+
+    .empty-history-icon {
+      margin-bottom: 12px;
+      opacity: 0.8;
+    }
+
+    /* Animations and effects */
+    .bg-decoration {
+      position: absolute;
+      border-radius: 50%;
+      background-color: white;
+      opacity: 0.05;
+    }
+
+    .decoration-1 {
+      width: 80px;
+      height: 80px;
+      top: 40px;
+      left: 40px;
+      animation: pulse-slow 4s ease-in-out infinite;
+    }
+
+    .decoration-2 {
+      width: 120px;
+      height: 120px;
+      bottom: 80px;
+      right: 40px;
+      animation: pulse-slower 6s ease-in-out infinite;
+    }
+
+    .decoration-3 {
+      width: 60px;
+      height: 60px;
+      top: 50%;
+      left: 75%;
+      animation: pulse 3s ease-in-out infinite;
+    }
+
+    .effect-flash {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      pointer-events: none;
+      z-index: 20;
+      animation: flash 0.5s forwards;
+      border-radius: 16px;
+    }
+
+    .effect-flash.correct {
+      background-color: rgba(16, 185, 129, 0.2);
+    }
+
+    .effect-flash.wrong {
+      background-color: rgba(239, 68, 68, 0.2);
+    }
+
+    .effect-combo {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: #fbbf24;
+      font-weight: 700;
+      font-size: 32px;
+      letter-spacing: 1px;
+      pointer-events: none;
+      z-index: 30;
+      animation: combo-effect 1.5s forwards;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .effect-bonus {
+      position: absolute;
+      top: 33%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      pointer-events: none;
+      z-index: 30;
+      animation: float-up 2s forwards;
+    }
+
+    .bonus-star {
+      color: #fbbf24;
+      animation: spin-slow 3s linear infinite;
+      margin-bottom: 4px;
+    }
+
+    .bonus-text {
+      color: #fbbf24;
+      font-weight: 700;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+
+    .effect-level-up {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      z-index: 40;
+    }
+
+    .level-up-content {
+      background-color: rgba(0, 0, 0, 0.5);
+      padding: 16px;
+      border-radius: 8px;
+      backdrop-filter: blur(4px);
+      animation: scale-in 0.5s forwards;
+      text-align: center;
+    }
+
+    .level-up-title {
+      color: #fbbf24;
+      font-weight: 700;
+      font-size: 24px;
+      margin-bottom: 4px;
+    }
+
+    .level-up-desc {
+      color: white;
+    }
+
+    .animate-score {
+      animation: score-bounce 0.8s ease;
+      color: #fbbf24;
+    }
+
+    .sound-control {
+      position: fixed;
+      bottom: 16px;
+      right: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      z-index: 50;
+      background-color: rgba(0, 0, 0, 0.3);
+      border-radius: 30px;
+      padding: 6px 12px;
+      backdrop-filter: blur(4px);
+    }
+
+    .sound-toggle {
+      background: transparent;
+      border: none;
+      color: white;
+      cursor: pointer;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: all 0.2s;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .sound-toggle:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .sound-toggle.muted svg {
+      color: #9ca3af;
+    }
+
+    .volume-slider-container {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      width: 100px;
+    }
+
+    .volume-slider {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 10px;
+      outline: none;
+    }
+
+    .volume-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 14px;
+      height: 14px;
+      background: white;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+
+    .volume-slider::-moz-range-thumb {
+      width: 14px;
+      height: 14px;
+      background: white;
+      border-radius: 50%;
+      cursor: pointer;
+      border: none;
+    }
+
+    /* Keyframe animations */
+    @keyframes float {
+      0%, 100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-10px);
+      }
+    }
+
+    @keyframes pulse-slow {
+      0%, 100% {
+        opacity: 0.05;
+      }
+      50% {
+        opacity: 0.1;
+      }
+    }
+
+    @keyframes pulse-slower {
+      0%, 100% {
+        opacity: 0.05;
+      }
+      50% {
+        opacity: 0.15;
+      }
+    }
+
+    @keyframes spin-slow {
+      from {
+        transform: rotate(0deg);
+      }
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    @keyframes float-up {
+      0% {
+        opacity: 0;
+        transform: translateY(20px) translate(-50%, -50%);
+      }
+      20% {
+        opacity: 1;
+      }
+      80% {
+        opacity: 1;
+      }
+      100% {
+        opacity: 0;
+        transform: translateY(-40px) translate(-50%, -50%);
+      }
+    }
+
+    @keyframes scale-in {
+      0% {
+        opacity: 0;
+        transform: scale(0.8);
+      }
+      70% {
+        opacity: 1;
+        transform: scale(1.05);
+      }
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes flash {
+      0%, 100% {
+        opacity: 0;
+      }
+      50% {
+        opacity: 1;
+      }
+    }
+
+    @keyframes combo-effect {
+      0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.8);
+      }
+      50% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.2);
+      }
+      100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(1.5);
+      }
+    }
+
+    @keyframes score-bounce {
+      0% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.25);
+      }
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    /* Media Queries for different devices */
+    @media (max-width: 480px) {
+      .app-container {
+        height: 100vh;
+        max-height: none;
+        border-radius: 0;
+      }
+      
+      .screen {
+        border-radius: 0;
+        padding: 12px;
+      }
+      
+      .word-card {
+        padding: 16px;
+        min-height: 240px;
+      }
+      
+      .word-text h2 {
+        font-size: 24px;
+      }
+      
+      .option-btn {
+        font-size: 14px;
+        padding: 10px;
+      }
+      
+      .home-title {
+        font-size: 28px;
+      }
+      
+      .btn-container {
+        max-width: 240px;
+      }
+      
+      .btn-primary, .btn-secondary {
+        padding: 12px 20px;
+        font-size: 15px;
+      }
+      
+      .missed-words-section {
+        max-height: 30vh;
+      }
+    }
+
+    @media (max-height: 667px) {
+      .word-card {
+        min-height: 200px;
+        max-height: 240px;
+        padding: 12px;
+      }
+      
+      .word-image img {
+        max-height: 120px;
+      }
+      
+      .home-image {
+        margin-bottom: 20px;
+      }
+      
+      .home-footer {
+        margin-top: 16px;
+      }
+      
+      .game-header {
+        margin-bottom: 10px;
+      }
+      
+      .progress-bar {
+        margin-bottom: 6px;
+      }
+      
+      .level-indicator {
+        margin-bottom: 8px;
+      }
+      
+      .review-card {
+        padding: 16px;
+      }
+    }
+
+    /* iPad Styles */
+    @media (min-width: 768px) and (min-height: 768px) {
+      .app-container {
+        max-width: 500px;
+        max-height: 90vh;
+        border-radius: 24px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+      }
+      
+      .screen {
+        border-radius: 24px;
+      }
+      
+      .word-card {
+        min-height: 320px;
+      }
+      
+      .word-image img {
+        max-width: 280px;
+        max-height: 200px;
+      }
+      
+      .option-btn {
+        font-size: 16px;
+        padding: 14px;
+      }
+      
+      .home-title {
+        font-size: 36px;
+      }
+      
+      .btn-container {
+        max-width: 320px;
+      }
+      
+      .btn-primary, .btn-secondary {
+        padding: 16px 28px;
+      }
+      
+      .missed-words-section {
+        max-height: 40vh;
+      }
+    }
+
+    /* Fix for notched iPhones */
+    @supports (padding: max(0px)) {
+      .app-container {
+        padding-left: max(16px, env(safe-area-inset-left));
+        padding-right: max(16px, env(safe-area-inset-right));
+        padding-top: max(16px, env(safe-area-inset-top));
+        padding-bottom: max(16px, env(safe-area-inset-bottom));
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app-container" id="app">
+    <!-- Home Screen -->
+    <div class="screen gradient-bg home-screen active" id="homeScreen">
+      <div class="home-title">TOEIC MASTER</div>
+      <div class="home-subtitle">Vocabulary Game</div>
+
+      <div class="home-image">
+        <img src="https://placehold.co/280x180/6366f1/ffffff?text=TOEIC+MASTER" alt="Game logo">
+        <div class="icon-badge">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+          </svg>
+        </div>
+      </div>
+
+      <div class="btn-container">
+        <button class="btn-primary" onclick="startGame()">
+          Start Game
+          <span class="btn-icon-right">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+            </svg>
+          </span>
+        </button>
+
+        <button class="btn-secondary" onclick="showScreen('historyScreen')">
+          Word History
+        </button>
+      </div>
+
+      <div class="stars-badge" id="totalStarsBadge" style="display: none;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"
+          stroke="currentColor" stroke-width="0" stroke-linecap="round" stroke-linejoin="round" class="stars-icon">
+          <polygon
+            points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2">
+          </polygon>
+        </svg>
+        <span id="totalStarsCount">0 Stars</span>
+      </div>
+
+      <div class="home-footer">
+        <p>Learn TOEIC vocabulary with fun!</p>
+        <p>Race against time and collect stars!</p>
+      </div>
+
+      <!-- Sound Control -->
+    <div class="sound-control">
+      <button class="sound-toggle" id="soundToggle">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+          <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+          <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+        </svg>
+      </button>
+      <div class="volume-slider-container" id="volumeContainer">
+        <input type="range" min="0" max="100" value="70" class="volume-slider" id="volumeSlider">
+        <span class="volume-value" id="volumeValue">70%</span>
+      </div>
+    </div>
+    </div>
+
+    <!-- Game Screen -->
+    <div class="screen gradient-bg" id="gameScreen">
+      <!-- Game header with lives, timer, score -->
+      <div class="game-header">
+        <div class="lives" id="livesContainer">
+          <svg class="heart" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+            fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path
+              d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z">
+            </path>
+          </svg>
+          <svg class="heart" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+            fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path
+              d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z">
+            </path>
+          </svg>
+          <svg class="heart" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+            fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path
+              d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z">
+            </path>
+          </svg>
+        </div>
+
+        <div class="timer">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10" />
+            <polyline points="12 6 12 12 16 14" />
+          </svg>
+          <span id="timeRemaining">15s</span>
+        </div>
+
+        <div class="score">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M8 6v6" />
+            <path d="M16 6v6" />
+            <circle cx="12" cy="3" r="2" />
+            <path d="m18 12-6 2-6-2" />
+            <path d="M12 15v6" />
+            <path d="m19 21-7-4-7 4" />
+          </svg>
+          <span id="scoreValue">0</span>
+        </div>
+      </div>
+
+      <!-- Progress bar -->
+      <div class="progress-bar">
+        <div class="progress-bar-fill" id="progressBar" style="width: 10%;"></div>
+      </div>
+
+      <!-- Time bar -->
+      <div class="progress-bar">
+        <div class="progress-bar-fill time-bar-fill" id="timeBar" style="width: 100%;"></div>
+      </div>
+
+      <!-- Level indicator -->
+      <div class="level-indicator">
+        <span class="level-badge" id="levelBadge">Level 1 - Easy</span>
+        <span class="combo-badge" id="comboBadge" style="display: none;">0x Combo!</span>
+      </div>
+
+      <!-- Word card -->
+      <div class="word-card">
+        <div class="word-image">
+          <img src="https://placehold.co/240x180/6366f1/ffffff?text=Vocabulary" alt="word visual" id="wordImage">
+        </div>
+
+        <div class="word-text">
+          <h2 id="currentWord">Word</h2>
+          <p id="currentPos">(n)</p>
+
+          <button class="sound-btn" onclick="speakWord()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M2 10s2-2 5-2 5 2 5 2 2-2 5-2 5 2 5 2" />
+              <path d="M2 17s2-2 5-2 5 2 5 2 2-2 5-2 5 2 5 2" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Options -->
+      <div class="options-grid" id="optionsContainer">
+        <!-- Options will be dynamically inserted here -->
+      </div>
+
+      <div class="timeout-message" id="timeoutMessage" style="display: none;">
+        Time's up! The correct answer is: <span id="timeoutAnswer" class="font-bold"></span>
+      </div>
+
+      <!-- Background decorations -->
+      <div class="bg-decoration decoration-1"></div>
+      <div class="bg-decoration decoration-2"></div>
+      <div class="bg-decoration decoration-3"></div>
+    </div>
+
+    <!-- Summary Screen -->
+    <div class="screen gradient-bg summary-screen" id="summaryScreen">
+      <h1>Game Summary</h1>
+
+      <div class="scrollable-content">
+        <div class="summary-card">
+          <div class="summary-score">
+            <div class="score-value" id="summaryScore">0</div>
+            <div class="score-label">Total Score</div>
+          </div>
+
+          <div class="stats-grid">
+            <div class="stat-item">
+              <div class="stat-value" id="correctCount">0</div>
+              <div class="stat-label">Correct</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value" id="incorrectCount">0</div>
+              <div class="stat-label">Incorrect</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value" id="levelReached">1</div>
+              <div class="stat-label">Level</div>
+            </div>
+          </div>
+
+          <div class="stars-earned" id="starsEarnedContainer" style="display: none;">
+            <div class="stars-earned-badge">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"
+                stroke="currentColor" stroke-width="0" stroke-linecap="round" stroke-linejoin="round"
+                class="stars-earned-icon">
+                <polygon
+                  points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2">
+                </polygon>
+              </svg>
+              <span class="stars-earned-text" id="starsEarnedText">+0 stars earned!</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="missed-words-section" id="missedWordsSection" style="display: none;">
+          <h2 class="missed-words-title">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+              class="missed-words-icon">
+              <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+              <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+            </svg>
+            Words to Review
+          </h2>
+          <div class="missed-words-list" id="missedWordsList">
+            <!-- Missed words will be dynamically inserted here -->
+          </div>
+        </div>
+      </div>
+
+      <div class="action-buttons">
+        <button class="btn-secondary btn-icon" onclick="showScreen('homeScreen')">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+            <polyline points="9 22 9 12 15 12 15 22" />
+          </svg>
+        </button>
+
+        <button class="btn-primary" onclick="startGame()">
+          Play Again
+        </button>
+
+        <button class="btn-secondary" id="reviewButton" style="display: none;" onclick="startReview()">
+          Review
+        </button>
+      </div>
+
+      <!-- Background decorations -->
+      <div class="bg-decoration decoration-1"></div>
+      <div class="bg-decoration decoration-2"></div>
+      <div class="bg-decoration decoration-3"></div>
+    </div>
+
+    <!-- Review Screen -->
+    <div class="screen gradient-bg review-screen" id="reviewScreen">
+      <div class="header">
+        <button class="back-btn" onclick="backToSummary()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 6 6 18" />
+            <path d="m6 6 12 12" />
+          </svg>
+        </button>
+
+        <h1>Review Words</h1>
+
+        <div style="width: 40px;"></div>
+      </div>
+
+      <div class="progress-bar">
+        <div class="progress-bar-fill" id="reviewProgressBar" style="width: 0%;"></div>
+      </div>
+
+      <div class="scrollable-content">
+        <div class="review-card" id="reviewCard">
+          <h2 class="review-word" id="reviewWord">Word</h2>
+          <p class="review-pos" id="reviewPos">(n)</p>
+
+          <button class="review-sound" onclick="speakReviewWord()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M2 10s2-2 5-2 5 2 5 2 2-2 5-2 5 2 5 2" />
+              <path d="M2 17s2-2 5-2 5 2 5 2 2-2 5-2 5 2 5 2" />
+            </svg>
+          </button>
+
+          <div id="meaningSection" style="display: none;" class="meaning-section">
+            <h3 class="meaning-text" id="reviewMeaning">Meaning</h3>
+
+            <div id="relatedWordsSection" style="display: none;">
+              <p class="related-words-title">Related words:</p>
+              <div class="related-words-list" id="relatedWordsList">
+                <!-- Related words will be dynamically inserted here -->
+              </div>
+            </div>
+          </div>
+
+          <button class="show-meaning-btn" id="showMeaningBtn" onclick="showMeaning()">
+            Show Meaning
+          </button>
+        </div>
+      </div>
+
+      <div class="review-navigation">
+        <button class="review-nav-btn prev-btn" id="prevWordBtn" onclick="prevReviewWord()" disabled>
+          Previous
+        </button>
+
+        <div class="pagination" id="reviewPagination">1 / 1</div>
+
+        <button class="review-nav-btn next-btn" id="nextWordBtn" onclick="nextReviewWord()">
+          Next
+        </button>
+      </div>
+
+      <!-- Background decorations -->
+      <div class="bg-decoration decoration-1"></div>
+      <div class="bg-decoration decoration-2"></div>
+      <div class="bg-decoration decoration-3"></div>
+    </div>
+
+    <!-- History Screen -->
+    <div class="screen gradient-bg history-screen" id="historyScreen">
+      <div class="header">
+        <button class="back-btn" onclick="showScreen('homeScreen')">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+            <polyline points="9 22 9 12 15 12 15 22" />
+          </svg>
+        </button>
+
+        <h1>Word History</h1>
+
+        <div style="width: 40px;"></div>
+      </div>
+
+      <div class="scrollable-content">
+        <div id="emptyHistory" class="empty-history">
+          <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+            class="empty-history-icon">
+            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+          </svg>
+          <p>No history yet. Play some games first!</p>
+          <button class="btn-primary mt-5" style="margin-top: 20px;" onclick="startGame()">
+            Start First Game
+          </button>
+        </div>
+
+        <div id="historyContent" style="display: none; flex: 1; display: flex; flex-direction: column;">
+          <div class="history-list">
+            <div class="history-header">
+              <div class="history-header-col col-word">Word</div>
+              <div class="history-header-col col-meaning">Meaning</div>
+              <div class="history-header-col col-errors">Errors</div>
+            </div>
+
+            <div class="history-items" id="historyItems">
+              <!-- History items will be dynamically inserted here -->
+            </div>
+          </div>
+
+          <button class="btn-primary" style="margin-top: 20px;" id="reviewAllBtn" onclick="reviewAllWords()">
+            Review All Words
+          </button>
+        </div>
+      </div>
+
+      <!-- Background decorations -->
+      <div class="bg-decoration decoration-1"></div>
+      <div class="bg-decoration decoration-2"></div>
+      <div class="bg-decoration decoration-3"></div>
+    </div>
+
+    <!-- Effects container for animations -->
+    <div id="effectsContainer"></div>
+  </div>
+
+  <!-- JavaScript -->
+  <script>
+    // ข้อมูลคำศัพท์
+    const vocabularyData = [
+  // คำศัพท์เดิม
+  { word: "Ability", pos: "n", thai: "ความสามารถ", related: ["Talent", "Skill", "Competence"] },
+  { word: "Accommodate", pos: "v", thai: "รองรับ", related: ["Host", "Adapt", "Provide"] },
+  { word: "Accurately", pos: "adv", thai: "อย่างแม่นยำ", related: ["Precisely", "Correctly", "Exactly"] },
+  { word: "Adhere to", pos: "v", thai: "ปฏิบัติตาม", related: ["Follow", "Obey", "Comply"] },
+  { word: "Agenda", pos: "n", thai: "วาระการประชุม", related: ["Schedule", "Program", "Outline"] },
+  { word: "Angry", pos: "adj", thai: "โกรธ", related: ["Furious", "Enraged", "Irritated"] },
+  { word: "Anxious", pos: "adj", thai: "กระวนกระวาย", related: ["Worried", "Nervous", "Uneasy"] },
+  { word: "Appreciate", pos: "v", thai: "ชื่นชม", related: ["Value", "Cherish", "Admire"] },
+  { word: "Apprehensive", pos: "adj", thai: "หวาดหวั่น", related: ["Fearful", "Worried", "Concerned"] },
+  { word: "Apply", pos: "v", thai: "สมัคร", related: ["Request", "Submit", "Register"] },
+  { word: "Benefit", pos: "n", thai: "ผลประโยชน์", related: ["Advantage", "Profit", "Gain"] },
+  { word: "Casual", pos: "adj", thai: "ไม่เป็นทางการ", related: ["Informal", "Relaxed", "Easygoing"] },
+  { word: "Complete", pos: "v", thai: "เสร็จสิ้น", related: ["Finish", "Conclude", "Accomplish"] },
+  { word: "Consume", pos: "v", thai: "บริโภค", related: ["Use", "Devour", "Utilize"] },
+  { word: "Current", pos: "adj", thai: "ปัจจุบัน", related: ["Present", "Existing", "Contemporary"] },
+  { word: "Decrease", pos: "v", thai: "ลดลง", related: ["Reduce", "Diminish", "Decline"] },
+  { word: "Demonstrate", pos: "v", thai: "แสดงให้เห็น", related: ["Show", "Display", "Exhibit"] },
+  { word: "Efficient", pos: "adj", thai: "มีประสิทธิภาพ", related: ["Productive", "Effective", "Capable"] },
+  { word: "Evaluate", pos: "v", thai: "ประเมิน", related: ["Assess", "Judge", "Rate"] },
+  { word: "Expect", pos: "v", thai: "คาดหวัง", related: ["Anticipate", "Predict", "Foresee"] },
+  { word: "Function", pos: "n", thai: "หน้าที่", related: ["Role", "Purpose", "Task"] },
+  { word: "Hesitant", pos: "adj", thai: "ลังเล", related: ["Uncertain", "Doubtful", "Reluctant"] },
+  { word: "Inspire", pos: "v", thai: "สร้างแรงบันดาลใจ", related: ["Motivate", "Encourage", "Influence"] },
+  { word: "Maintain", pos: "v", thai: "รักษา", related: ["Sustain", "Preserve", "Uphold"] },
+  { word: "Negotiate", pos: "v", thai: "เจรจา", related: ["Bargain", "Discuss", "Confer"] },
+  { word: "Priority", pos: "n", thai: "ลำดับความสำคัญ", related: ["Precedence", "Preference", "Importance"] },
+  { word: "Quality", pos: "n", thai: "คุณภาพ", related: ["Standard", "Grade", "Excellence"] },
+  { word: "Responsibility", pos: "n", thai: "ความรับผิดชอบ", related: ["Duty", "Obligation", "Accountability"] },
+  { word: "Satisfied", pos: "adj", thai: "พึงพอใจ", related: ["Content", "Pleased", "Gratified"] },
+  { word: "Strengthen", pos: "v", thai: "เสริมสร้าง", related: ["Reinforce", "Fortify", "Bolster"] },
+  { word: "Acknowledge", pos: "v", thai: "รับรู้", related: ["Recognize", "Admit", "Confirm"] },
+  { word: "Acquisition", pos: "n", thai: "การซื้อกิจการ", related: ["Purchase", "Takeover", "Merger"] },
+  { word: "Adjustment", pos: "n", thai: "การปรับเปลี่ยน", related: ["Modification", "Change", "Alteration"] },
+  { word: "Allocate", pos: "v", thai: "จัดสรร", related: ["Distribute", "Assign", "Apportion"] },
+  { word: "Allowance", pos: "n", thai: "เบี้ยเลี้ยง", related: ["Subsidy", "Grant", "Stipend"] },
+  { word: "Anticipate", pos: "v", thai: "คาดการณ์", related: ["Expect", "Predict", "Foresee"] },
+  { word: "Assess", pos: "v", thai: "ประเมิน", related: ["Evaluate", "Judge", "Analyze"] },
+  { word: "Authorize", pos: "v", thai: "อนุญาต", related: ["Permit", "Approve", "Sanction"] },
+  { word: "Availability", pos: "n", thai: "ความพร้อมใช้งาน", related: ["Accessibility", "Presence", "Supply"] },
+  { word: "Balance", pos: "n", thai: "ยอดคงเหลือ", related: ["Remainder", "Equilibrium", "Stability"] },
+  { word: "Bargain", pos: "n", thai: "การต่อรอง", related: ["Deal", "Negotiation", "Agreement"] },
+  { word: "Bid", pos: "n", thai: "การประมูล", related: ["Offer", "Proposal", "Tender"] },
+  { word: "Branch", pos: "n", thai: "สาขา", related: ["Division", "Office", "Unit"] },
+  { word: "Budget", pos: "n", thai: "งบประมาณ", related: ["Funds", "Estimate", "Plan"] },
+  { word: "Calculate", pos: "v", thai: "คำนวณ", related: ["Compute", "Estimate", "Assess"] },
+  { word: "Campaign", pos: "n", thai: "แคมเปญ", related: ["Promotion", "Drive", "Effort"] },
+  { word: "Candidate", pos: "n", thai: "ผู้สมัคร", related: ["Applicant", "Nominee", "Contender"] },
+  { word: "Capacity", pos: "n", thai: "ความจุ", related: ["Volume", "Ability", "Limit"] },
+  { word: "Catalog", pos: "n", thai: "แคตตาล็อก", related: ["List", "Directory", "Brochure"] },
+  { word: "Claim", pos: "v", thai: "เรียกร้อง", related: ["Demand", "Assert", "Request"] },
+  { word: "Collaborate", pos: "v", thai: "ร่วมมือ", related: ["Cooperate", "Partner", "Work together"] },
+  { word: "Commission", pos: "n", thai: "ค่าคอมมิชชั่น", related: ["Fee", "Payment", "Reward"] },
+  { word: "Commitment", pos: "n", thai: "ความมุ่งมั่น", related: ["Dedication", "Promise", "Obligation"] },
+  { word: "Compliance", pos: "n", thai: "การปฏิบัติตาม", related: ["Adherence", "Obedience", "Conformity"] },
+  { word: "Conduct", pos: "v", thai: "ดำเนินการ", related: ["Manage", "Perform", "Execute"] },
+  { word: "Conference", pos: "n", thai: "การประชุม", related: ["Meeting", "Seminar", "Convention"] },
+  { word: "Confirm", pos: "v", thai: "ยืนยัน", related: ["Verify", "Validate", "Assure"] },
+  { word: "Constraint", pos: "n", thai: "ข้อจำกัด", related: ["Limit", "Restriction", "Barrier"] },
+  { word: "Contract", pos: "n", thai: "สัญญา", related: ["Agreement", "Deal", "Pact"] },
+  { word: "Contribute", pos: "v", thai: "สนับสนุน", related: ["Donate", "Assist", "Add"] },
+  { word: "Coordinate", pos: "v", thai: "ประสานงาน", related: ["Organize", "Arrange", "Align"] },
+  { word: "Corporation", pos: "n", thai: "บริษัท", related: ["Company", "Firm", "Enterprise"] },
+  { word: "Deadline", pos: "n", thai: "กำหนดเวลา", related: ["Due date", "Time limit", "Target"] },
+  { word: "Delegate", pos: "v", thai: "มอบหมาย", related: ["Assign", "Entrust", "Transfer"] },
+  { word: "Delivery", pos: "n", thai: "การจัดส่ง", related: ["Shipment", "Transport", "Distribution"] },
+  { word: "Demand", pos: "n", thai: "ความต้องการ", related: ["Need", "Request", "Requirement"] },
+  { word: "Department", pos: "n", thai: "แผนก", related: ["Section", "Division", "Unit"] },
+  { word: "Deposit", pos: "n", thai: "เงินฝาก", related: ["Payment", "Down payment", "Installment"] },
+  { word: "Discrepancy", pos: "n", thai: "ความคลาดเคลื่อน", related: ["Difference", "Inconsistency", "Error"] },
+  { word: "Distribute", pos: "v", thai: "แจกจ่าย", related: ["Dispense", "Share", "Allocate"] },
+  { word: "Document", pos: "n", thai: "เอกสาร", related: ["Record", "File", "Paper"] },
+  { word: "Efficiency", pos: "n", thai: "ประสิทธิภาพ", related: ["Productivity", "Effectiveness", "Capability"] },
+  { word: "Employment", pos: "n", thai: "การจ้างงาน", related: ["Job", "Work", "Hiring"] },
+  { word: "Enroll", pos: "v", thai: "ลงทะเบียน", related: ["Register", "Sign up", "Join"] },
+  { word: "Estimate", pos: "n", thai: "การประเมิน", related: ["Guess", "Projection", "Calculation"] },
+  { word: "Excess", pos: "n", thai: "ส่วนเกิน", related: ["Surplus", "Extra", "Overflow"] },
+  { word: "Expense", pos: "n", thai: "ค่าใช้จ่าย", related: ["Cost", "Expenditure", "Outlay"] },
+  { word: "Facility", pos: "n", thai: "สิ่งอำนวยความสะดวก", related: ["Amenity", "Resource", "Equipment"] },
+  { word: "Feedback", pos: "n", thai: "ข้อเสนอแนะ", related: ["Response", "Comment", "Input"] },
+  { word: "Forecast", pos: "v", thai: "พยากรณ์", related: ["Predict", "Project", "Estimate"] },
+  { word: "Freight", pos: "n", thai: "ค่าขนส่ง", related: ["Shipping", "Cargo", "Transport"] },
+  { word: "Guarantee", pos: "n", thai: "การรับประกัน", related: ["Warranty", "Assurance", "Promise"] },
+  { word: "Implement", pos: "v", thai: "ดำเนินการ", related: ["Execute", "Apply", "Enforce"] },
+  { word: "Incentive", pos: "n", thai: "สิ่งจูงใจ", related: ["Motivation", "Reward", "Bonus"] },
+  { word: "Inquiry", pos: "n", thai: "การสอบถาม", related: ["Question", "Investigation", "Request"] },
+  { word: "Inspection", pos: "n", thai: "การตรวจสอบ", related: ["Review", "Examination", "Check"] },
+  { word: "Inventory", pos: "n", thai: "สินค้าคงคลัง", related: ["Stock", "Supply", "Goods"] },
+  { word: "Invoice", pos: "n", thai: "ใบแจ้งหนี้", related: ["Bill", "Statement", "Receipt"] },
+  { word: "Liability", pos: "n", thai: "หนี้สิน", related: ["Debt", "Obligation", "Responsibility"] },
+  { word: "Merchandise", pos: "n", thai: "สินค้า", related: ["Goods", "Products", "Items"] },
+  { word: "Occupation", pos: "n", thai: "อาชีพ", related: ["Job", "Profession", "Trade"] },
+  { word: "Operation", pos: "n", thai: "การดำเนินงาน", related: ["Activity", "Process", "Function"] },
+  { word: "Overtime", pos: "n", thai: "การทำงานล่วงเวลา", related: ["Extra hours", "Additional time", "Excess"] },
+  { word: "Partnership", pos: "n", thai: "การเป็นหุ้นส่วน", related: ["Collaboration", "Alliance", "Association"] },
+  { word: "Performance", pos: "n", thai: "ผลงาน", related: ["Achievement", "Efficiency", "Output"] },
+  { word: "Policy", pos: "n", thai: "นโยบาย", related: ["Rule", "Guideline", "Procedure"] },
+  { word: "Procedure", pos: "n", thai: "ขั้นตอน", related: ["Process", "Method", "System"] },
+  { word: "Procurement", pos: "n", thai: "การจัดซื้อ", related: ["Purchase", "Acquisition", "Sourcing"] },
+  { word: "Profit", pos: "n", thai: "กำไร", related: ["Gain", "Revenue", "Earnings"] },
+  { word: "Promote", pos: "v", thai: "ส่งเสริม", related: ["Advance", "Boost", "Encourage"] },
+  { word: "Proposal", pos: "n", thai: "ข้อเสนอ", related: ["Plan", "Suggestion", "Offer"] },
+  { word: "Prospect", pos: "n", thai: "โอกาส", related: ["Possibility", "Potential", "Outlook"] },
+  { word: "Qualification", pos: "n", thai: "คุณสมบัติ", related: ["Skill", "Credential", "Requirement"] },
+  { word: "Receipt", pos: "n", thai: "ใบเสร็จ", related: ["Invoice", "Bill", "Proof"] },
+  { word: "Recruit", pos: "v", thai: "รับสมัคร", related: ["Hire", "Enlist", "Employ"] },
+  { word: "Refund", pos: "n", thai: "การคืนเงิน", related: ["Reimbursement", "Repayment", "Return"] },
+  { word: "Regulation", pos: "n", thai: "กฎระเบียบ", related: ["Rule", "Law", "Standard"] },
+  { word: "Reimbursement", pos: "n", thai: "การชดเชย", related: ["Refund", "Compensation", "Repayment"] },
+  { word: "Reservation", pos: "n", thai: "การจอง", related: ["Booking", "Hold", "Arrangement"] },
+  { word: "Revenue", pos: "n", thai: "รายได้", related: ["Income", "Profit", "Earnings"] },
+  { word: "Schedule", pos: "n", thai: "ตารางเวลา", related: ["Timetable", "Plan", "Agenda"] },
+  { word: "Shipment", pos: "n", thai: "การขนส่ง", related: ["Delivery", "Transport", "Freight"] },
+  { word: "Specification", pos: "n", thai: "ข้อกำหนด", related: ["Detail", "Requirement", "Standard"] },
+  { word: "Strategy", pos: "n", thai: "กลยุทธ์", related: ["Plan", "Approach", "Tactic"] },
+  { word: "Subsidiary", pos: "n", thai: "บริษัทลูก", related: ["Branch", "Division", "Affiliate"] },
+  { word: "Supervisor", pos: "n", thai: "ผู้ควบคุม", related: ["Manager", "Overseer", "Leader"] },
+  { word: "Surplus", pos: "n", thai: "ส่วนเกิน", related: ["Excess", "Extra", "Remainder"] },
+  { word: "Transaction", pos: "n", thai: "การทำธุรกรรม", related: ["Deal", "Exchange", "Operation"] },
+  { word: "Trend", pos: "n", thai: "แนวโน้ม", related: ["Pattern", "Direction", "Tendency"] },
+  { word: "Turnover", pos: "n", thai: "ยอดขาย", related: ["Revenue", "Sales", "Rotation"] },
+  { word: "Vacancy", pos: "n", thai: "ตำแหน่งว่าง", related: ["Opening", "Position", "Slot"] },
+  { word: "Vendor", pos: "n", thai: "ผู้ขาย", related: ["Supplier", "Merchant", "Retailer"] },
+  { word: "Warranty", pos: "n", thai: "การรับประกัน", related: ["Guarantee", "Assurance", "Pledge"] },
+  { word: "Withdrawal", pos: "n", thai: "การถอน", related: ["Removal", "Retreat", "Extraction"] },
+  { word: "Agenda", pos: "n", thai: "วาระการประชุม", related: ["Plan", "Itinerary", "Schedule"] },
+  { word: "Analysis", pos: "n", thai: "การวิเคราะห์", related: ["Study", "Review", "Evaluation"] },
+  { word: "Announcement", pos: "n", thai: "การประกาศ", related: ["Notice", "Statement", "Declaration"] },
+  { word: "Appraisal", pos: "n", thai: "การประเมินผล", related: ["Assessment", "Review", "Evaluation"] },
+  { word: "Approval", pos: "n", thai: "การอนุมัติ", related: ["Consent", "Permission", "Endorsement"] },
+  { word: "Asset", pos: "n", thai: "สินทรัพย์", related: ["Property", "Resource", "Capital"] },
+  { word: "Attendance", pos: "n", thai: "การเข้าร่วม", related: ["Presence", "Participation", "Turnout"] },
+  { word: "Audit", pos: "n", thai: "การตรวจสอบบัญชี", related: ["Inspection", "Review", "Examination"] },
+  { word: "Bankruptcy", pos: "n", thai: "การล้มละลาย", related: ["Insolvency", "Failure", "Collapse"] },
+  { word: "Benchmark", pos: "n", thai: "เกณฑ์มาตรฐาน", related: ["Standard", "Reference", "Criteria"] },
+  { word: "Bonus", pos: "n", thai: "โบนัส", related: ["Reward", "Incentive", "Premium"] },
+  { word: "Breakdown", pos: "n", thai: "การแยกย่อย", related: ["Analysis", "Failure", "Collapse"] },
+  { word: "Broker", pos: "n", thai: "นายหน้า", related: ["Agent", "Mediator", "Dealer"] },
+  { word: "Cancellation", pos: "n", thai: "การยกเลิก", related: ["Termination", "Annulment", "Withdrawal"] },
+  { word: "Certification", pos: "n", thai: "การรับรอง", related: ["Accreditation", "License", "Endorsement"] },
+  { word: "Challenge", pos: "n", thai: "ความท้าทาย", related: ["Obstacle", "Difficulty", "Problem"] },
+  { word: "Circulate", pos: "v", thai: "เผยแพร่", related: ["Distribute", "Spread", "Share"] },
+  { word: "Client", pos: "n", thai: "ลูกค้า", related: ["Customer", "Patron", "Buyer"] },
+  { word: "Colleague", pos: "n", thai: "เพื่อนร่วมงาน", related: ["Coworker", "Associate", "Partner"] },
+  { word: "Compensation", pos: "n", thai: "การชดเชย", related: ["Payment", "Reimbursement", "Reward"] },
+  { word: "Competitive", pos: "adj", thai: "แข่งขัน", related: ["Rival", "Aggressive", "Challenging"] },
+  { word: "Complaint", pos: "n", thai: "คำร้องเรียน", related: ["Grievance", "Issue", "Objection"] },
+  { word: "Component", pos: "n", thai: "ส่วนประกอบ", related: ["Part", "Element", "Piece"] },
+  { word: "Concern", pos: "n", thai: "ความกังวล", related: ["Worry", "Issue", "Care"] },
+  { word: "Conclude", pos: "v", thai: "สรุป", related: ["Finish", "End", "Resolve"] },
+  { word: "Confidential", pos: "adj", thai: "ลับ", related: ["Private", "Secret", "Restricted"] },
+  { word: "Congratulate", pos: "v", thai: "แสดงความยินดี", related: ["Praise", "Celebrate", "Compliment"] },
+  { word: "Consensus", pos: "n", thai: "ฉันทามติ", related: ["Agreement", "Unity", "Harmony"] },
+  { word: "Consult", pos: "v", thai: "ปรึกษา", related: ["Advise", "Discuss", "Confer"] },
+  { word: "Achieve", pos: "v", thai: "บรรลุ", related: ["Accomplish", "Succeed", "Attain"] },
+  { word: "Agenda", pos: "n", thai: "วาระการประชุม", related: ["Schedule", "Plan", "Itinerary"] },
+  { word: "Allocate", pos: "v", thai: "จัดสรร", related: ["Distribute", "Assign", "Divide"] },
+  { word: "Annual", pos: "adj", thai: "ประจำปี", related: ["Yearly", "Periodic", "Regular"] },
+  { word: "Assess", pos: "v", thai: "ประเมิน", related: ["Evaluate", "Analyze", "Judge"] },
+  { word: "Assistance", pos: "n", thai: "ความช่วยเหลือ", related: ["Help", "Support", "Aid"] },
+  { word: "Authorize", pos: "v", thai: "อนุญาต", related: ["Permit", "Approve", "Allow"] },
+  { word: "Benefit", pos: "n", thai: "ผลประโยชน์", related: ["Advantage", "Gain", "Profit"] },
+  { word: "Budget", pos: "n", thai: "งบประมาณ", related: ["Funds", "Estimate", "Plan"] },
+  { word: "Collaborate", pos: "v", thai: "ร่วมมือ", related: ["Cooperate", "Team up", "Work together"] },
+  { word: "Commitment", pos: "n", thai: "ความมุ่งมั่น", related: ["Dedication", "Promise", "Duty"] },
+  { word: "Competitive", pos: "adj", thai: "แข่งขัน", related: ["Rival", "Challenging", "Aggressive"] },
+  { word: "Compliance", pos: "n", thai: "การปฏิบัติตาม", related: ["Adherence", "Obedience", "Conformity"] },
+  { word: "Conduct", pos: "v", thai: "ดำเนินการ", related: ["Perform", "Execute", "Manage"] },
+  { word: "Conference", pos: "n", thai: "การประชุม", related: ["Meeting", "Seminar", "Convention"] },
+  { word: "Contract", pos: "n", thai: "สัญญา", related: ["Agreement", "Deal", "Pact"] },
+  { word: "Coordinate", pos: "v", thai: "ประสานงาน", related: ["Organize", "Arrange", "Align"] },
+  { word: "Deadline", pos: "n", thai: "กำหนดเวลา", related: ["Due date", "Target", "Limit"] },
+  { word: "Delegate", pos: "v", thai: "มอบหมาย", related: ["Assign", "Entrust", "Appoint"] },
+  { word: "Delivery", pos: "n", thai: "การจัดส่ง", related: ["Shipment", "Transport", "Dispatch"] },
+  { word: "Department", pos: "n", thai: "แผนก", related: ["Division", "Section", "Unit"] },
+  { word: "Efficiency", pos: "n", thai: "ประสิทธิภาพ", related: ["Productivity", "Effectiveness", "Capability"] },
+  { word: "Estimate", pos: "v", thai: "ประเมิน", related: ["Calculate", "Predict", "Project"] },
+  { word: "Expense", pos: "n", thai: "ค่าใช้จ่าย", related: ["Cost", "Outlay", "Charge"] },
+  { word: "Facility", pos: "n", thai: "สิ่งอำนวยความสะดวก", related: ["Amenity", "Equipment", "Resource"] },
+  { word: "Feedback", pos: "n", thai: "ข้อเสนอแนะ", related: ["Response", "Comment", "Input"] },
+  { word: "Forecast", pos: "n", thai: "การพยากรณ์", related: ["Prediction", "Projection", "Outlook"] },
+  { word: "Implement", pos: "v", thai: "ดำเนินการ", related: ["Execute", "Apply", "Enforce"] },
+  { word: "Incentive", pos: "n", thai: "สิ่งจูงใจ", related: ["Reward", "Motivation", "Bonus"] },
+  { word: "Inspection", pos: "n", thai: "การตรวจสอบ", related: ["Review", "Check", "Examination"] },
+  { word: "Inventory", pos: "n", thai: "สินค้าคงคลัง", related: ["Stock", "Supply", "Goods"] },
+  { word: "Invoice", pos: "n", thai: "ใบแจ้งหนี้", related: ["Bill", "Statement", "Receipt"] },
+  { word: "Maintain", pos: "v", thai: "รักษา", related: ["Preserve", "Sustain", "Uphold"] },
+  { word: "Negotiate", pos: "v", thai: "เจรจา", related: ["Bargain", "Discuss", "Confer"] },
+  { word: "Objective", pos: "n", thai: "วัตถุประสงค์", related: ["Goal", "Aim", "Purpose"] },
+  { word: "Performance", pos: "n", thai: "ผลงาน", related: ["Achievement", "Output", "Efficiency"] },
+  { word: "Policy", pos: "n", thai: "นโยบาย", related: ["Rule", "Guideline", "Procedure"] },
+  { word: "Procedure", pos: "n", thai: "ขั้นตอน", related: ["Process", "Method", "System"] },
+  { word: "Promotion", pos: "n", thai: "การเลื่อนตำแหน่ง", related: ["Advancement", "Upgrade", "Rise"] },
+  { word: "Proposal", pos: "n", thai: "ข้อเสนอ", related: ["Plan", "Suggestion", "Offer"] },
+  { word: "Qualification", pos: "n", thai: "คุณสมบัติ", related: ["Skill", "Credential", "Requirement"] },
+  { word: "Recruit", pos: "v", thai: "รับสมัคร", related: ["Hire", "Enlist", "Employ"] },
+  { word: "Revenue", pos: "n", thai: "รายได้", related: ["Income", "Profit", "Earnings"] },
+  { word: "Schedule", pos: "n", thai: "ตารางเวลา", related: ["Timetable", "Plan", "Agenda"] },
+  { word: "Strategy", pos: "n", thai: "กลยุทธ์", related: ["Plan", "Tactic", "Approach"] },
+  { word: "Supervisor", pos: "n", thai: "ผู้ควบคุม", related: ["Manager", "Overseer", "Leader"] },
+  { word: "Transaction", pos: "n", thai: "การทำธุรกรรม", related: ["Deal", "Exchange", "Operation"] },
+  { word: "Trend", pos: "n", thai: "แนวโน้ม", related: ["Pattern", "Direction", "Tendency"] },
+  { word: "Vacancy", pos: "n", thai: "ตำแหน่งว่าง", related: ["Opening", "Position", "Slot"] },
+  { word: "Warranty", pos: "n", thai: "การรับประกัน", related: ["Guarantee", "Assurance", "Pledge"] },
+  { word: "Acquisition", pos: "n", thai: "การซื้อกิจการ", related: ["Purchase", "Takeover", "Merger"] },
+  { word: "Adjustment", pos: "n", thai: "การปรับเปลี่ยน", related: ["Change", "Modification", "Alteration"] },
+  { word: "Advertisement", pos: "n", thai: "โฆษณา", related: ["Promotion", "Notice", "Campaign"] },
+  { word: "Analysis", pos: "n", thai: "การวิเคราะห์", related: ["Study", "Review", "Evaluation"] },
+  { word: "Application", pos: "n", thai: "ใบสมัคร", related: ["Form", "Request", "Submission"] },
+  { word: "Appointment", pos: "n", thai: "การนัดหมาย", related: ["Meeting", "Schedule", "Engagement"] },
+  { word: "Approval", pos: "n", thai: "การอนุมัติ", related: ["Permission", "Consent", "Endorsement"] },
+  { word: "Asset", pos: "n", thai: "สินทรัพย์", related: ["Property", "Resource", "Capital"] },
+  { word: "Attendance", pos: "n", thai: "การเข้าร่วม", related: ["Presence", "Participation", "Turnout"] },
+  { word: "Audit", pos: "n", thai: "การตรวจสอบบัญชี", related: ["Inspection", "Review", "Check"] },
+  { word: "Availability", pos: "n", thai: "ความพร้อมใช้งาน", related: ["Access", "Supply", "Readiness"] },
+  { word: "Balance", pos: "n", thai: "ยอดคงเหลือ", related: ["Remainder", "Stability", "Equilibrium"] },
+  { word: "Bonus", pos: "n", thai: "โบนัส", related: ["Reward", "Incentive", "Premium"] },
+  { word: "Branch", pos: "n", thai: "สาขา", related: ["Division", "Office", "Unit"] },
+  { word: "Calculate", pos: "v", thai: "คำนวณ", related: ["Compute", "Estimate", "Figure"] },
+  { word: "Campaign", pos: "n", thai: "แคมเปญ", related: ["Promotion", "Drive", "Effort"] },
+  { word: "Candidate", pos: "n", thai: "ผู้สมัคร", related: ["Applicant", "Nominee", "Contender"] },
+  { word: "Capacity", pos: "n", thai: "ความจุ", related: ["Volume", "Limit", "Ability"] },
+  { word: "Catalog", pos: "n", thai: "แคตตาล็อก", related: ["List", "Brochure", "Directory"] },
+  { word: "Certification", pos: "n", thai: "การรับรอง", related: ["License", "Accreditation", "Approval"] },
+  { word: "Client", pos: "n", thai: "ลูกค้า", related: ["Customer", "Buyer", "Patron"] },
+  { word: "Commission", pos: "n", thai: "ค่าคอมมิชชั่น", related: ["Fee", "Payment", "Reward"] },
+  { word: "Compensation", pos: "n", thai: "การชดเชย", related: ["Payment", "Reimbursement", "Reward"] },
+  { word: "Complaint", pos: "n", thai: "คำร้องเรียน", related: ["Issue", "Grievance", "Objection"] },
+  { word: "Confirm", pos: "v", thai: "ยืนยัน", related: ["Verify", "Assure", "Validate"] },
+  { word: "Constraint", pos: "n", thai: "ข้อจำกัด", related: ["Limit", "Restriction", "Barrier"] },
+  { word: "Consult", pos: "v", thai: "ปรึกษา", related: ["Advise", "Discuss", "Confer"] },
+  { word: "Contribution", pos: "n", thai: "การสนับสนุน", related: ["Donation", "Support", "Input"] },
+  { word: "Corporation", pos: "n", thai: "บริษัท", related: ["Company", "Firm", "Enterprise"] },
+  { word: "Cost", pos: "n", thai: "ต้นทุน", related: ["Expense", "Price", "Charge"] },
+  { word: "Currency", pos: "n", thai: "สกุลเงิน", related: ["Money", "Cash", "Exchange"] },
+  { word: "Customer", pos: "n", thai: "ลูกค้า", related: ["Client", "Buyer", "Consumer"] },
+  { word: "Decline", pos: "v", thai: "ลดลง", related: ["Decrease", "Drop", "Fall"] },
+  { word: "Demand", pos: "n", thai: "ความต้องการ", related: ["Need", "Request", "Requirement"] },
+  { word: "Deposit", pos: "n", thai: "เงินฝาก", related: ["Payment", "Installment", "Savings"] },
+  { word: "Discrepancy", pos: "n", thai: "ความคลาดเคลื่อน", related: ["Difference", "Error", "Inconsistency"] },
+  { word: "Distribution", pos: "n", thai: "การแจกจ่าย", related: ["Delivery", "Allocation", "Sharing"] },
+  { word: "Document", pos: "n", thai: "เอกสาร", related: ["File", "Record", "Paper"] },
+  { word: "Employment", pos: "n", thai: "การจ้างงาน", related: ["Job", "Work", "Hiring"] },
+  { word: "Enroll", pos: "v", thai: "ลงทะเบียน", related: ["Register", "Join", "Sign up"] },
+  { word: "Equipment", pos: "n", thai: "อุปกรณ์", related: ["Gear", "Tool", "Machinery"] },
+  { word: "Excess", pos: "n", thai: "ส่วนเกิน", related: ["Surplus", "Extra", "Overflow"] },
+  { word: "Expectation", pos: "n", thai: "ความคาดหวัง", related: ["Hope", "Prediction", "Anticipation"] },
+  { word: "Export", pos: "n", thai: "การส่งออก", related: ["Shipment", "Trade", "Delivery"] },
+  { word: "Freight", pos: "n", thai: "ค่าขนส่ง", related: ["Shipping", "Cargo", "Transport"] },
+  { word: "Guarantee", pos: "n", thai: "การรับประกัน", related: ["Warranty", "Promise", "Assurance"] },
+  { word: "Hire", pos: "v", thai: "จ้าง", related: ["Employ", "Recruit", "Engage"] },
+  { word: "Impact", pos: "n", thai: "ผลกระทบ", related: ["Effect", "Influence", "Consequence"] },
+  { word: "Import", pos: "n", thai: "การนำเข้า", related: ["Shipment", "Trade", "Purchase"] },
+  { word: "Improvement", pos: "n", thai: "การปรับปรุง", related: ["Enhancement", "Upgrade", "Progress"] },
+  
+  // คำศัพท์เพิ่มเติม (คำศัพท์ TOEIC ที่แตกต่างละเอียดขึ้น)
+  
+  // 1. กลุ่มคำศัพท์เกี่ยวกับการสื่อสารในที่ทำงาน
+  { word: "Correspondence", pos: "n", thai: "การโต้ตอบจดหมาย", related: ["Communication", "Exchange", "Letters"] },
+  { word: "Minutes", pos: "n", thai: "รายงานการประชุม", related: ["Record", "Notes", "Documentation"] },
+  { word: "Clarify", pos: "v", thai: "ทำให้ชัดเจน", related: ["Explain", "Elucidate", "Specify"] },
+  { word: "Elaborate", pos: "v", thai: "อธิบายอย่างละเอียด", related: ["Explain", "Detail", "Expound"] },
+  { word: "Brief", pos: "v", thai: "ให้ข้อมูลโดยย่อ", related: ["Summarize", "Inform", "Update"] },
+  
+  // 2. กลุ่มคำศัพท์เกี่ยวกับการประชุมและการนำเสนอ
+  { word: "Facilitator", pos: "n", thai: "ผู้อำนวยความสะดวก", related: ["Moderator", "Coordinator", "Leader"] },
+  { word: "Handout", pos: "n", thai: "เอกสารแจก", related: ["Document", "Material", "Pamphlet"] },
+  { word: "Presentation", pos: "n", thai: "การนำเสนอ", related: ["Display", "Demonstration", "Showing"] },
+  { word: "Slideshow", pos: "n", thai: "การนำเสนอด้วยสไลด์", related: ["Presentation", "Slides", "Display"] },
+  { word: "Attendee", pos: "n", thai: "ผู้เข้าร่วม", related: ["Participant", "Guest", "Member"] },
+  
+  // 3. กลุ่มคำศัพท์เกี่ยวกับการเดินทางเพื่อธุรกิจ
+  { word: "Itinerary", pos: "n", thai: "กำหนดการเดินทาง", related: ["Schedule", "Plan", "Route"] },
+  { word: "Per diem", pos: "n", thai: "เบี้ยเลี้ยงรายวัน", related: ["Allowance", "Stipend", "Reimbursement"] },
+  { word: "Accommodation", pos: "n", thai: "ที่พัก", related: ["Lodging", "Housing", "Quarters"] },
+  { word: "Business trip", pos: "n", thai: "การเดินทางเพื่อธุรกิจ", related: ["Work travel", "Mission", "Assignment"] },
+  { word: "Commute", pos: "v", thai: "เดินทางไปกลับ", related: ["Travel", "Journey", "Shuttle"] },
+  
+  // 4. กลุ่มคำศัพท์เกี่ยวกับเทคโนโลยีในที่ทำงาน
+  { word: "Troubleshoot", pos: "v", thai: "แก้ไขปัญหา", related: ["Diagnose", "Fix", "Resolve"] },
+  { word: "Interface", pos: "n", thai: "ส่วนต่อประสาน", related: ["Connection", "Boundary", "Link"] },
+  { word: "Upgrade", pos: "v", thai: "อัพเกรด", related: ["Improve", "Update", "Enhance"] },
+  { word: "Database", pos: "n", thai: "ฐานข้อมูล", related: ["Repository", "Records", "Information"] },
+  { word: "Backup", pos: "n", thai: "การสำรองข้อมูล", related: ["Copy", "Reserve", "Duplicate"] },
+  
+  // 5. กลุ่มคำศัพท์เกี่ยวกับการสมัครงานและการสัมภาษณ์
+  { word: "Resume", pos: "n", thai: "ประวัติย่อ", related: ["CV", "Biography", "Profile"] },
+  { word: "Proficient", pos: "adj", thai: "เชี่ยวชาญ", related: ["Skilled", "Expert", "Adept"] },
+  { word: "Reference", pos: "n", thai: "การอ้างอิง", related: ["Recommendation", "Endorsement", "Testimonial"] },
+  { word: "Internship", pos: "n", thai: "การฝึกงาน", related: ["Training", "Apprenticeship", "Practicum"] },
+  { word: "Portfolio", pos: "n", thai: "แฟ้มผลงาน", related: ["Collection", "Samples", "Examples"] },
+  
+  // 6. กลุ่มคำศัพท์เกี่ยวกับการจัดการโครงการ
+  { word: "Milestone", pos: "n", thai: "เหตุการณ์สำคัญ", related: ["Checkpoint", "Achievement", "Landmark"] },
+  { word: "Stakeholder", pos: "n", thai: "ผู้มีส่วนได้ส่วนเสีย", related: ["Investor", "Partner", "Interested party"] },
+  { word: "Deliverable", pos: "n", thai: "ผลงานที่ต้องส่งมอบ", related: ["Output", "Result", "Product"] },
+  { word: "Timeline", pos: "n", thai: "กรอบเวลา", related: ["Schedule", "Timeframe", "Plan"] },
+  { word: "Contingency", pos: "n", thai: "แผนสำรอง", related: ["Backup plan", "Alternative", "Fallback"] },
+  
+  // 7. กลุ่มคำศัพท์เกี่ยวกับการดำเนินงานและโลจิสติกส์
+  { word: "Inventory turnover", pos: "n", thai: "อัตราการหมุนเวียนของสินค้าคงคลัง", related: ["Stock rotation", "Throughput", "Sales ratio"] },
+  { word: "Quality control", pos: "n", thai: "การควบคุมคุณภาพ", related: ["Inspection", "Standards", "Assurance"] },
+  { word: "Supply chain", pos: "n", thai: "ห่วงโซ่อุปทาน", related: ["Logistics", "Distribution", "Network"] },
+  { word: "Warehouse", pos: "n", thai: "คลังสินค้า", related: ["Storage", "Depot", "Facility"] },
+  { word: "Just-in-time", pos: "adj", thai: "ทันเวลาพอดี", related: ["On-demand", "Timely", "Efficient"] },
+  
+  // 8. กลุ่มคำศัพท์เกี่ยวกับการประกันคุณภาพและความพึงพอใจของลูกค้า
+  { word: "Satisfaction", pos: "n", thai: "ความพึงพอใจ", related: ["Contentment", "Approval", "Happiness"] },
+  { word: "Feedback form", pos: "n", thai: "แบบฟอร์มความคิดเห็น", related: ["Survey", "Questionnaire", "Evaluation"] },
+  { word: "Response time", pos: "n", thai: "เวลาตอบสนอง", related: ["Reaction time", "Turnaround", "Speed"] },
+  { word: "Loyalty program", pos: "n", thai: "โปรแกรมความภักดี", related: ["Rewards", "Member benefits", "VIP"] },
+  { word: "Customer retention", pos: "n", thai: "การรักษาลูกค้า", related: ["Loyalty", "Repurchase", "Continuity"] },
+  
+  // 9. กลุ่มคำศัพท์เกี่ยวกับการติดต่อทางโทรศัพท์และอีเมล
+  { word: "Voicemail", pos: "n", thai: "ข้อความเสียง", related: ["Message", "Recording", "Greeting"] },
+  { word: "Follow-up", pos: "n", thai: "การติดตามผล", related: ["Check-in", "Continuation", "Response"] },
+  { word: "Carbon copy", pos: "n", thai: "สำเนาถึง", related: ["CC", "Copy", "Duplicate"] },
+  { word: "Attachment", pos: "n", thai: "เอกสารแนบ", related: ["File", "Enclosure", "Add-on"] },
+  { word: "Out of office", pos: "adj", thai: "ไม่อยู่ที่สำนักงาน", related: ["Away", "Unavailable", "On leave"] },
+  
+  // 10. กลุ่มคำศัพท์เกี่ยวกับการเงินและบัญชี
+  { word: "Fiscal year", pos: "n", thai: "ปีงบประมาณ", related: ["Financial year", "Tax year", "Accounting period"] },
+  { word: "Overhead", pos: "n", thai: "ค่าใช้จ่ายทั่วไป", related: ["Indirect costs", "Fixed expenses", "Running costs"] },
+  { word: "Reconciliation", pos: "n", thai: "การกระทบยอด", related: ["Balancing", "Matching", "Verification"] },
+  { word: "Depreciation", pos: "n", thai: "ค่าเสื่อมราคา", related: ["Devaluation", "Reduction", "Write-down"] },
+  { word: "Petty cash", pos: "n", thai: "เงินสดย่อย", related: ["Small funds", "Cash box", "Minor expenses"] }
+];
+
+    // ระบบเสียง
+    let audioContext;
+  let masterGainNode;
+  let soundEnabled = true;
+  let volumeLevel = 0.7; // 70%
+  
+  // เริ่มต้นระบบเสียง
+  function initAudio() {
+    try {
+      // สร้าง AudioContext เมื่อมีการกระทำจากผู้ใช้ (เช่น คลิก)
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      audioContext = new AudioContext();
+      
+      // สร้าง master gain node สำหรับควบคุมความดังโดยรวม
+      masterGainNode = audioContext.createGain();
+      masterGainNode.gain.value = volumeLevel;
+      masterGainNode.connect(audioContext.destination);
+      
+      // ตั้งค่า UI เริ่มต้น
+      document.getElementById('volumeSlider').value = volumeLevel * 100;
+      document.getElementById('volumeValue').textContent = `${Math.round(volumeLevel * 100)}%`;
+    } catch (e) {
+      console.log('Web Audio API is not supported in this browser');
+      soundEnabled = false;
+    }
+  }
+  
+  // สร้างและเล่นเสียง oscillator
+  function playSound(type, frequency, duration, attack = 0.01, decay = 0.1) {
+    if (!soundEnabled || !audioContext) return;
+    
+    // ตรวจสอบสถานะ AudioContext และ resume ถ้าจำเป็น
+    if (audioContext.state === 'suspended') {
+      audioContext.resume();
+    }
+    
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    
+    oscillator.type = type;
+    oscillator.frequency.value = frequency;
+    
+    // ADSR envelope (simplified)
+    const now = audioContext.currentTime;
+    gainNode.gain.setValueAtTime(0, now);
+    gainNode.gain.linearRampToValueAtTime(1, now + attack);
+    gainNode.gain.linearRampToValueAtTime(0, now + duration);
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(masterGainNode);
+    
+    oscillator.start();
+    oscillator.stop(now + duration);
+  }
+  
+  // เล่นเสียงสำหรับเหตุการณ์ต่างๆ
+  function playCorrectSound() {
+    if (!soundEnabled) return;
+    playSound('sine', 880, 0.15); // A5
+    setTimeout(() => playSound('sine', 1318.51, 0.15), 150); // E6
+  }
+  
+  function playWrongSound() {
+    if (!soundEnabled) return;
+    playSound('sine', 415.30, 0.1); // G#4
+    setTimeout(() => playSound('sine', 369.99, 0.2), 100); // F#4
+  }
+  
+  function playTimeoutSound() {
+    if (!soundEnabled) return;
+    playSound('sawtooth', 277.18, 0.1); // C#4
+    setTimeout(() => playSound('sawtooth', 233.08, 0.2), 100); // A#3
+  }
+  
+  function playLoseLifeSound() {
+    if (!soundEnabled) return;
+    playSound('sawtooth', 622.25, 0.05); // D#5
+    setTimeout(() => playSound('sawtooth', 415.30, 0.2), 50); // G#4
+  }
+  
+  function playButtonSound() {
+    if (!soundEnabled) return;
+    playSound('sine', 440, 0.08); // A4
+  }
+  
+  function playLevelUpSound() {
+    if (!soundEnabled) return;
+    playSound('sine', 523.25, 0.1); // C5
+    setTimeout(() => playSound('sine', 659.25, 0.1), 100); // E5
+    setTimeout(() => playSound('sine', 783.99, 0.1), 200); // G5
+    setTimeout(() => playSound('sine', 1046.50, 0.2), 300); // C6
+  }
+  
+  // ปรับระดับความดังเสียง
+  function setVolume(value) {
+    volumeLevel = value / 100;
+    if (masterGainNode) {
+      masterGainNode.gain.value = volumeLevel;
+    }
+    document.getElementById('volumeValue').textContent = `${value}%`;
+  }
+  
+  // เปิด/ปิดเสียง
+  function toggleSound() {
+    soundEnabled = !soundEnabled;
+    const soundToggle = document.getElementById('soundToggle');
+    
+    if (soundEnabled) {
+      soundToggle.classList.remove('muted');
+      soundToggle.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" 
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+          <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+          <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+        </svg>
+      `;
+      playButtonSound(); // เล่นเสียงเมื่อเปิดเสียง
+    } else {
+      soundToggle.classList.add('muted');
+      soundToggle.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" 
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+          <line x1="23" y1="9" x2="17" y2="15"></line>
+          <line x1="17" y1="9" x2="23" y2="15"></line>
+        </svg>
+      `;
+    }
+  }
+  
+  // แสดง/ซ่อนตัวปรับความดังเสียง
+  function toggleVolumeSlider() {
+    const volumeContainer = document.getElementById('volumeContainer');
+    const currentDisplay = volumeContainer.style.display;
+    volumeContainer.style.display = currentDisplay === 'flex' ? 'none' : 'flex';
+  }
+
+    // ฟังก์ชันตรวจสอบว่า localStorage ใช้งานได้หรือไม่
+    function isLocalStorageAvailable() {
+      try {
+        const test = '__test__';
+        localStorage.setItem(test, test);
+        localStorage.removeItem(test);
+        return true;
+      } catch (e) {
+        return false;
+      }
+    }
+    
+    // ตัวแปรสำหรับเก็บข้อมูลในระหว่างเซสชัน กรณีไม่สามารถใช้ localStorage ได้
+    let memoryStorage = {
+      totalStars: 0,
+      wordHistory: []
+    };
+    
+    // ฟังก์ชันสำหรับอ่านข้อมูลที่จัดเก็บ
+    function getStoredData(key, defaultValue) {
+      if (isLocalStorageAvailable()) {
+        const data = localStorage.getItem(key);
+        return data ? JSON.parse(data) : defaultValue;
+      }
+      return memoryStorage[key] || defaultValue;
+    }
+    
+    // ฟังก์ชันสำหรับบันทึกข้อมูล
+    function saveData(key, value) {
+      if (isLocalStorageAvailable()) {
+        localStorage.setItem(key, JSON.stringify(value));
+      } else {
+        memoryStorage[key] = value;
+      }
+    }
+    
+    // สถานะของเกม
+    let gameState = {
+      score: 0,
+      lives: 3,
+      level: 1,
+      combo: 0,
+      progress: 0,
+      timeLeft: 15,
+      currentWordIndex: 0,
+      totalStars: getStoredData('totalStars', 0),
+      correctCount: 0,
+      incorrectCount: 0,
+      missedWords: [],
+      history: getStoredData('wordHistory', []),
+      usedWords: [] // เพิ่มตัวแปรนี้
+    };
+
+    let timerInterval;
+
+    // ฟังก์ชันหลักของเกม
+    function startGame() {
+      // ตรวจสอบว่ามีคำศัพท์เพียงพอหรือไม่
+      if (vocabularyData.length < 4) {
+        alert("Please add more vocabulary data to start the game (at least 4 words)");
+        return;
+      }
+      
+      resetGame();
+      showScreen('gameScreen');
+      loadNextWord();
+      startTimer();
+    }
+
+    function resetGame() {
+      gameState.score = 0;
+      gameState.lives = 3;
+      gameState.level = 1;
+      gameState.combo = 0;
+      gameState.progress = 0;
+      gameState.timeLeft = 15;
+      gameState.currentWordIndex = 0;
+      gameState.correctCount = 0;
+      gameState.incorrectCount = 0;
+      gameState.missedWords = [];
+      gameState.usedWords = []; // รีเซ็ตคำที่ใช้แล้ว
+      updateUI();
+    }
+
+    function showScreen(screenId) {
+      document.querySelectorAll('.screen').forEach(screen => screen.classList.remove('active'));
+      document.getElementById(screenId).classList.add('active');
+      if (screenId === 'homeScreen') updateTotalStars();
+    }
+
+    function loadNextWord() {
+      if (gameState.progress >= 100) {
+        levelUp();
+        return;
+      }
+
+      // กรองคำที่ยังไม่ใช้
+      const availableWords = vocabularyData.filter(word => !gameState.usedWords.includes(word.word));
+      
+      // ถ้าใช้ทุกคำแล้ว ให้รีเซ็ตใหม่
+      if (availableWords.length === 0) {
+        gameState.usedWords = []; // รีเซ็ตคำที่ใช้แล้ว
+        loadNextWord(); // เรียกฟังก์ชั่นนี้อีกครั้ง
+        return;
+      }
+
+      // สุ่มคำจากคำที่ยังไม่ใช้
+      const wordData = availableWords[Math.floor(Math.random() * availableWords.length)];
+      gameState.currentWordIndex = vocabularyData.indexOf(wordData); // อัพเดท index
+      gameState.usedWords.push(wordData.word); // เพิ่มคำที่ใช้แล้ว
+
+      document.getElementById('currentWord').textContent = wordData.word;
+      document.getElementById('currentPos').textContent = `(${wordData.pos})`;
+      document.getElementById('wordImage').src = `https://placehold.co/240x160/6366f1/ffffff?text=${wordData.word}`;
+      
+      // เรียกสร้างตัวเลือกคำตอบ
+      generateOptions(wordData);
+      
+      // อัพเดท UI
+      updateUI();
+      
+      // รีเซ็ตเวลา
+      gameState.timeLeft = 15;
+      document.getElementById('timeRemaining').textContent = `${gameState.timeLeft}s`;
+      document.getElementById('timeBar').style.width = '100%';
+    }
+
+    function generateOptions(correctWord) {
+      const optionsContainer = document.getElementById('optionsContainer');
+      optionsContainer.innerHTML = '';
+      const correctOption = correctWord.thai;
+      let options = [correctOption];
+
+      // เลือกตัวเลือกที่ไม่ซ้ำกัน
+      while (options.length < 4) {
+        const randomWord = vocabularyData[Math.floor(Math.random() * vocabularyData.length)].thai;
+        if (!options.includes(randomWord)) options.push(randomWord);
+      }
+      
+      // สลับตำแหน่งตัวเลือก
+      options = shuffleArray(options);
+      
+      // สร้างปุ่มตัวเลือก
+      options.forEach(option => {
+        const btn = document.createElement('button');
+        btn.classList.add('option-btn');
+        btn.textContent = option;
+        btn.onclick = () => checkAnswer(option, correctOption);
+        optionsContainer.appendChild(btn);
+      });
+    }
+
+    function checkAnswer(selected, correct) {
+      clearInterval(timerInterval);
+      const buttons = document.querySelectorAll('.option-btn');
+      buttons.forEach(btn => {
+        btn.disabled = true;
+        if (btn.textContent === correct) btn.classList.add('correct');
+        if (btn.textContent === selected && selected !== correct) btn.classList.add('wrong');
+      });
+
+      if (selected === correct) {
+        gameState.score += 10 + gameState.combo;
+        gameState.correctCount++;
+        gameState.combo++;
+        gameState.progress += 10;
+        showEffect('correct');
+        if (gameState.combo > 1) showComboEffect();
+      } else {
+        gameState.lives--;
+        gameState.incorrectCount++;
+        gameState.combo = 0;
+        gameState.missedWords.push(vocabularyData[gameState.currentWordIndex]);
+        showEffect('wrong');
+        updateHistory(vocabularyData[gameState.currentWordIndex]);
+      }
+
+      updateUI();
+      setTimeout(() => {
+        if (gameState.lives <= 0) {
+          endGame();
+        } else {
+          loadNextWord();
+          startTimer();
+        }
+      }, 1000);
+    }
+
+    function startTimer() {
+      clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
+        gameState.timeLeft -= 0.1;
+        const timePercentage = (gameState.timeLeft / 15) * 100;
+        document.getElementById('timeBar').style.width = `${timePercentage}%`;
+        document.getElementById('timeRemaining').textContent = `${Math.ceil(gameState.timeLeft)}s`;
+        document.getElementById('timeBar').classList.toggle('warning', timePercentage <= 50);
+        document.getElementById('timeBar').classList.toggle('danger', timePercentage <= 25);
+
+        if (gameState.timeLeft <= 0) {
+          clearInterval(timerInterval);
+          showTimeout();
+          gameState.lives--;
+          gameState.incorrectCount++;
+          gameState.combo = 0;
+          gameState.missedWords.push(vocabularyData[gameState.currentWordIndex]);
+          updateHistory(vocabularyData[gameState.currentWordIndex]);
+          updateUI();
+          setTimeout(() => {
+            if (gameState.lives <= 0) {
+              endGame();
+            } else {
+              loadNextWord();
+              startTimer();
+            }
+          }, 2000);
+        }
+      }, 100);
+    }
+
+    function updateUI() {
+      document.getElementById('scoreValue').textContent = gameState.score;
+      document.getElementById('progressBar').style.width = `${gameState.progress}%`;
+      document.getElementById('levelBadge').textContent = `Level ${gameState.level} - ${getLevelName()}`;
+      document.getElementById('comboBadge').textContent = `${gameState.combo}x Combo!`;
+      document.getElementById('comboBadge').style.display = gameState.combo > 1 ? 'inline-block' : 'none';
+      const hearts = document.querySelectorAll('.heart');
+      hearts.forEach((heart, index) => {
+        heart.classList.toggle('empty', index >= gameState.lives);
+      });
+    }
+
+    function getLevelName() {
+      return gameState.level <= 3 ? 'Easy' : gameState.level <= 6 ? 'Medium' : 'Hard';
+    }
+
+    function showEffect(type) {
+      const effect = document.createElement('div');
+      effect.classList.add('effect-flash', type);
+      document.getElementById('effectsContainer').appendChild(effect);
+      setTimeout(() => effect.remove(), 500);
+    }
+
+    function showComboEffect() {
+      const combo = document.createElement('div');
+      combo.classList.add('effect-combo');
+      combo.textContent = `${gameState.combo}x Combo!`;
+      document.getElementById('effectsContainer').appendChild(combo);
+      setTimeout(() => combo.remove(), 1500);
+    }
+
+    function levelUp() {
+      gameState.level++;
+      gameState.progress = 0;
+      const starsEarned = Math.min(gameState.level, 3);
+      gameState.totalStars += starsEarned;
+      saveData('totalStars', gameState.totalStars);
+      showLevelUpEffect(starsEarned);
+      setTimeout(() => {
+        loadNextWord();
+        startTimer();
+      }, 2000);
+    }
+
+    function showLevelUpEffect(stars) {
+      const effect = document.createElement('div');
+      effect.classList.add('effect-level-up');
+      effect.innerHTML = `
+        <div class="level-up-content">
+          <div class="level-up-title">Level ${gameState.level}!</div>
+          <div class="level-up-desc">Earned ${stars} star${stars > 1 ? 's' : ''}</div>
+        </div>`;
+      document.getElementById('effectsContainer').appendChild(effect);
+      setTimeout(() => effect.remove(), 2000);
+    }
+
+    function showTimeout() {
+      const timeoutMessage = document.getElementById('timeoutMessage');
+      timeoutMessage.style.display = 'block';
+      document.getElementById('timeoutAnswer').textContent = vocabularyData[gameState.currentWordIndex].thai;
+      setTimeout(() => timeoutMessage.style.display = 'none', 2000);
+    }
+
+    function endGame() {
+      clearInterval(timerInterval);
+      showScreen('summaryScreen');
+      document.getElementById('summaryScore').textContent = gameState.score;
+      document.getElementById('correctCount').textContent = gameState.correctCount;
+      document.getElementById('incorrectCount').textContent = gameState.incorrectCount;
+      document.getElementById('levelReached').textContent = gameState.level;
+      if (gameState.missedWords.length > 0) {
+        document.getElementById('missedWordsSection').style.display = 'block';
+        document.getElementById('reviewButton').style.display = 'block';
+        const missedList = document.getElementById('missedWordsList');
+        missedList.innerHTML = '';
+        gameState.missedWords.forEach(word => {
+          missedList.innerHTML += `
+            <div class="missed-word-item">
+              <div class="missed-word-text">
+                <div class="word">${word.word}</div>
+                <div class="meaning">${word.thai}</div>
+              </div>
+              <button class="missed-word-sound" onclick="speakText('${word.word}')">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 10s2-2 5-2 5 2 5 2 2-2 5-2 5 2 5 2"/><path d="M2 17s2-2 5-2 5 2 5 2 2-2 5-2 5 2 5 2"/></svg>
+              </button>
+            </div>`;
+        });
+      } else {
+        document.getElementById('missedWordsSection').style.display = 'none';
+        document.getElementById('reviewButton').style.display = 'none';
+      }
+      const starsEarned = Math.min(Math.floor(gameState.score / 50), 3);
+      if (starsEarned > 0) {
+        gameState.totalStars += starsEarned;
+        saveData('totalStars', gameState.totalStars);
+        document.getElementById('starsEarnedContainer').style.display = 'flex';
+        document.getElementById('starsEarnedText').textContent = `+${starsEarned} stars earned!`;
+      } else {
+        document.getElementById('starsEarnedContainer').style.display = 'none';
+      }
+    }
+
+    function updateTotalStars() {
+      gameState.totalStars = getStoredData('totalStars', 0);
+      const badge = document.getElementById('totalStarsBadge');
+      badge.style.display = gameState.totalStars > 0 ? 'inline-flex' : 'none';
+      document.getElementById('totalStarsCount').textContent = `${gameState.totalStars} Stars`;
+    }
+
+    function updateHistory(word) {
+      const existing = gameState.history.find(h => h.word === word.word);
+      if (existing) {
+        existing.errors = (existing.errors || 0) + 1;
+      } else {
+        gameState.history.push({ ...word, errors: 1 });
+      }
+      saveData('wordHistory', gameState.history);
+    }
+
+    function speakWord() {
+      speakText(vocabularyData[gameState.currentWordIndex].word);
+    }
+
+    function speakText(text) {
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'en-US';
+      speechSynthesis.speak(utterance);
+    }
+
+    function shuffleArray(array) {
+      const newArray = [...array]; // สร้าง array ใหม่เพื่อไม่ให้กระทบอาร์เรย์เดิม
+      for (let i = newArray.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+      }
+      return newArray;
+    }
+
+    // Review functions
+    function startReview() {
+      showScreen('reviewScreen');
+      gameState.reviewIndex = 0;
+      loadReviewWord();
+    }
+
+    function loadReviewWord() {
+      const word = gameState.missedWords[gameState.reviewIndex];
+      document.getElementById('reviewWord').textContent = word.word;
+      document.getElementById('reviewPos').textContent = `(${word.pos})`;
+      document.getElementById('reviewMeaning').textContent = word.thai;
+      const relatedList = document.getElementById('relatedWordsList');
+      relatedList.innerHTML = '';
+      word.related.forEach(rel => {
+        const tag = document.createElement('span');
+        tag.classList.add('related-word-tag');
+        tag.textContent = rel;
+        relatedList.appendChild(tag);
+      });
+      document.getElementById('meaningSection').style.display = 'none';
+      document.getElementById('showMeaningBtn').style.display = 'block';
+      document.getElementById('reviewProgressBar').style.width = `${((gameState.reviewIndex + 1) / gameState.missedWords.length) * 100}%`;
+      document.getElementById('reviewPagination').textContent = `${gameState.reviewIndex + 1} / ${gameState.missedWords.length}`;
+      document.getElementById('prevWordBtn').disabled = gameState.reviewIndex === 0;
+      document.getElementById('nextWordBtn').textContent = gameState.reviewIndex === gameState.missedWords.length - 1 ? 'Finish' : 'Next';
+    }
+
+    function showMeaning() {
+      document.getElementById('meaningSection').style.display = 'block';
+      document.getElementById('relatedWordsSection').style.display = 'block';
+      document.getElementById('showMeaningBtn').style.display = 'none';
+    }
+
+    function nextReviewWord() {
+      if (gameState.reviewIndex < gameState.missedWords.length - 1) {
+        gameState.reviewIndex++;
+        loadReviewWord();
+      } else {
+        backToSummary();
+      }
+    }
+
+    function prevReviewWord() {
+      if (gameState.reviewIndex > 0) {
+        gameState.reviewIndex--;
+        loadReviewWord();
+      }
+    }
+
+    function backToSummary() {
+      showScreen('summaryScreen');
+    }
+
+    function speakReviewWord() {
+      speakText(gameState.missedWords[gameState.reviewIndex].word);
+    }
+
+    // History functions
+    function loadHistory() {
+      showScreen('historyScreen');
+      const historyItems = document.getElementById('historyItems');
+      historyItems.innerHTML = '';
+      if (gameState.history.length === 0) {
+        document.getElementById('emptyHistory').style.display = 'flex';
+        document.getElementById('historyContent').style.display = 'none';
+      } else {
+        document.getElementById('emptyHistory').style.display = 'none';
+        document.getElementById('historyContent').style.display = 'flex';
+        gameState.history.forEach(word => {
+          historyItems.innerHTML += `
+            <div class="history-item">
+              <div class="history-header-col col-word history-word">${word.word} <span class="history-pos">(${word.pos})</span></div>
+              <div class="history-header-col col-meaning history-meaning">${word.thai}</div>
+              <div class="history-header-col col-errors"><span class="error-badge ${word.errors > 2 ? 'error-high' : 'error-low'}">${word.errors}</span></div>
+            </div>`;
+        });
+      }
+    }
+
+    function reviewAllWords() {
+      gameState.missedWords = [...gameState.history];
+      startReview();
+    }
+
+    // Event listeners
+    document.getElementById('historyScreen').addEventListener('transitionend', () => {
+      if (document.getElementById('historyScreen').classList.contains('active')) loadHistory();
+    });
+
+    // แก้ไขปัญหาการซูมบน iOS
+    document.addEventListener('gesturestart', function(e) {
+      e.preventDefault();
+    });
+    
+    // แก้ไขปัญหาการกดเลื่อนด้วยการซ่อน contextmenu บนมือถือ
+    document.addEventListener('contextmenu', function(e) {
+      e.preventDefault();
+    }, false);
+
+    // Initial setup
+    updateTotalStars();
+    
+    // ตรวจสอบหากพิกัดหน้าจอมีการเปลี่ยนแปลง (เช่น เมื่อหมุนโทรศัพท์)
+    window.addEventListener('resize', function() {
+      // ปรับแต่ง UI ตามขนาดจอที่เปลี่ยนไป (ถ้าจำเป็น)
+    });
+  </script>
+</body>
+
+</html>
