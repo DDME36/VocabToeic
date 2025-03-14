@@ -1470,7 +1470,7 @@
       </div>
 
       <div class="btn-container">
-        <button class="btn-primary" onclick="startGame()">
+        <button class="btn-primary" id="startGameBtn">
           Start Game
           <span class="btn-icon-right">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
@@ -1480,7 +1480,7 @@
           </span>
         </button>
 
-        <button class="btn-secondary" onclick="showScreen('historyScreen')">
+        <button class="btn-secondary" id="historyBtn">
           Word History
         </button>
       </div>
@@ -1583,18 +1583,18 @@
       <!-- Word card -->
       <div class="word-card">
         <div class="word-image">
-          <img src="https://placehold.co/240x180/6366f1/ffffff?text=Vocabulary" alt="word visual" id="wordImage">
+          <img src="https://placehold.co/240x160/6366f1/ffffff?text=Vocabulary" alt="word visual" id="wordImage">
         </div>
 
         <div class="word-text">
           <h2 id="currentWord">Word</h2>
           <p id="currentPos">(n)</p>
 
-          <button class="sound-btn" onclick="speakWord()">
+          <button class="sound-btn" id="speakWordBtn">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M2 10s2-2 5-2 5 2 5 2 2-2 5-2 5 2 5 2" />
-              <path d="M2 17s2-2 5-2 5 2 5 2 2-2 5-2 5 2 5 2" />
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+              <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
             </svg>
           </button>
         </div>
@@ -1672,7 +1672,7 @@
       </div>
 
       <div class="action-buttons">
-        <button class="btn-secondary btn-icon" onclick="showScreen('homeScreen')">
+        <button class="btn-secondary btn-icon" id="homeBtn">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
@@ -1680,11 +1680,11 @@
           </svg>
         </button>
 
-        <button class="btn-primary" onclick="startGame()">
+        <button class="btn-primary" id="playAgainBtn">
           Play Again
         </button>
 
-        <button class="btn-secondary" id="reviewButton" style="display: none;" onclick="startReview()">
+        <button class="btn-secondary" id="reviewBtn" style="display: none;">
           Review
         </button>
       </div>
@@ -1698,7 +1698,7 @@
     <!-- Review Screen -->
     <div class="screen gradient-bg review-screen" id="reviewScreen">
       <div class="header">
-        <button class="back-btn" onclick="backToSummary()">
+        <button class="back-btn" id="backToSummaryBtn">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M18 6 6 18" />
@@ -1720,11 +1720,11 @@
           <h2 class="review-word" id="reviewWord">Word</h2>
           <p class="review-pos" id="reviewPos">(n)</p>
 
-          <button class="review-sound" onclick="speakReviewWord()">
+          <button class="review-sound" id="speakReviewWordBtn">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M2 10s2-2 5-2 5 2 5 2 2-2 5-2 5 2 5 2" />
-              <path d="M2 17s2-2 5-2 5 2 5 2 2-2 5-2 5 2 5 2" />
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+              <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
             </svg>
           </button>
 
@@ -1739,20 +1739,20 @@
             </div>
           </div>
 
-          <button class="show-meaning-btn" id="showMeaningBtn" onclick="showMeaning()">
+          <button class="show-meaning-btn" id="showMeaningBtn">
             Show Meaning
           </button>
         </div>
       </div>
 
       <div class="review-navigation">
-        <button class="review-nav-btn prev-btn" id="prevWordBtn" onclick="prevReviewWord()" disabled>
+        <button class="review-nav-btn prev-btn" id="prevWordBtn" disabled>
           Previous
         </button>
 
         <div class="pagination" id="reviewPagination">1 / 1</div>
 
-        <button class="review-nav-btn next-btn" id="nextWordBtn" onclick="nextReviewWord()">
+        <button class="review-nav-btn next-btn" id="nextWordBtn">
           Next
         </button>
       </div>
@@ -1766,7 +1766,7 @@
     <!-- History Screen -->
     <div class="screen gradient-bg history-screen" id="historyScreen">
       <div class="header">
-        <button class="back-btn" onclick="showScreen('homeScreen')">
+        <button class="back-btn" id="backToHomeBtn">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
@@ -1788,7 +1788,7 @@
             <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
           </svg>
           <p>No history yet. Play some games first!</p>
-          <button class="btn-primary mt-5" style="margin-top: 20px;" onclick="startGame()">
+          <button class="btn-primary mt-5" style="margin-top: 20px;" id="startFirstGameBtn">
             Start First Game
           </button>
         </div>
@@ -1806,7 +1806,7 @@
             </div>
           </div>
 
-          <button class="btn-primary" style="margin-top: 20px;" id="reviewAllBtn" onclick="reviewAllWords()">
+          <button class="btn-primary" style="margin-top: 20px;" id="reviewAllBtn">
             Review All Words
           </button>
         </div>
@@ -2155,142 +2155,170 @@
 ];
 
     // ระบบเสียง
-    let audioContext;
-  let masterGainNode;
-  let soundEnabled = true;
-  let volumeLevel = 0.7; // 70%
-  
-  // เริ่มต้นระบบเสียง
-  function initAudio() {
-    try {
-      // สร้าง AudioContext เมื่อมีการกระทำจากผู้ใช้ (เช่น คลิก)
-      const AudioContext = window.AudioContext || window.webkitAudioContext;
-      audioContext = new AudioContext();
+    let audioContext = null;
+    let masterGainNode = null;
+    let soundEnabled = true;
+    let volumeLevel = 0.4; // 40%
+    let audioInitialized = false;
+
+    // เริ่มต้นระบบเสียง
+    function initAudio() {
+      if (audioInitialized) return; // ป้องกันการเริ่มต้นซ้ำ
       
-      // สร้าง master gain node สำหรับควบคุมความดังโดยรวม
-      masterGainNode = audioContext.createGain();
-      masterGainNode.gain.value = volumeLevel;
-      masterGainNode.connect(audioContext.destination);
+      try {
+        // สร้าง AudioContext เมื่อมีการกระทำจากผู้ใช้ (เช่น คลิก)
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        audioContext = new AudioContext();
+        
+        // สร้าง master gain node สำหรับควบคุมความดังโดยรวม
+        masterGainNode = audioContext.createGain();
+        masterGainNode.gain.value = volumeLevel;
+        masterGainNode.connect(audioContext.destination);
+        
+        // ตั้งค่า UI เริ่มต้น
+        document.getElementById('volumeSlider').value = volumeLevel * 100;
+        document.getElementById('volumeValue').textContent = `${Math.round(volumeLevel * 100)}%`;
+        
+        audioInitialized = true;
+        console.log('Audio system initialized successfully');
+      } catch (e) {
+        console.error('Web Audio API is not supported in this browser:', e);
+        soundEnabled = false;
+      }
+    }
+
+    // สร้างและเล่นเสียง oscillator
+    function playSound(type, frequency, duration, attack = 0.01, decay = 0.1) {
+      if (!soundEnabled) return;
       
-      // ตั้งค่า UI เริ่มต้น
-      document.getElementById('volumeSlider').value = volumeLevel * 100;
-      document.getElementById('volumeValue').textContent = `${Math.round(volumeLevel * 100)}%`;
-    } catch (e) {
-      console.log('Web Audio API is not supported in this browser');
-      soundEnabled = false;
+      // ตรวจสอบว่าได้เริ่มต้นเสียงแล้วหรือไม่
+      if (!audioInitialized) {
+        initAudio();
+      }
+      
+      if (!audioContext) {
+        console.warn('AudioContext not available');
+        return;
+      }
+      
+      // ตรวจสอบสถานะ AudioContext และ resume ถ้าจำเป็น
+      if (audioContext.state === 'suspended') {
+        audioContext.resume();
+      }
+      
+      try {
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.type = type;
+        oscillator.frequency.value = frequency;
+        
+        // ADSR envelope (simplified)
+        const now = audioContext.currentTime;
+        gainNode.gain.setValueAtTime(0, now);
+        gainNode.gain.linearRampToValueAtTime(1, now + attack);
+        gainNode.gain.linearRampToValueAtTime(0, now + duration);
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(masterGainNode);
+        
+        oscillator.start();
+        oscillator.stop(now + duration);
+        
+        console.log(`Playing sound: ${type} at ${frequency}Hz for ${duration}s`);
+      } catch (e) {
+        console.error('Error playing sound:', e);
+      }
     }
-  }
-  
-  // สร้างและเล่นเสียง oscillator
-  function playSound(type, frequency, duration, attack = 0.01, decay = 0.1) {
-    if (!soundEnabled || !audioContext) return;
-    
-    // ตรวจสอบสถานะ AudioContext และ resume ถ้าจำเป็น
-    if (audioContext.state === 'suspended') {
-      audioContext.resume();
+
+    // เล่นเสียงสำหรับเหตุการณ์ต่างๆ
+    function playCorrectSound() {
+      if (!soundEnabled) return;
+      playSound('sine', 880, 0.15); // A5
+      setTimeout(() => playSound('sine', 1318.51, 0.15), 150); // E6
     }
-    
-    const oscillator = audioContext.createOscillator();
-    const gainNode = audioContext.createGain();
-    
-    oscillator.type = type;
-    oscillator.frequency.value = frequency;
-    
-    // ADSR envelope (simplified)
-    const now = audioContext.currentTime;
-    gainNode.gain.setValueAtTime(0, now);
-    gainNode.gain.linearRampToValueAtTime(1, now + attack);
-    gainNode.gain.linearRampToValueAtTime(0, now + duration);
-    
-    oscillator.connect(gainNode);
-    gainNode.connect(masterGainNode);
-    
-    oscillator.start();
-    oscillator.stop(now + duration);
-  }
-  
-  // เล่นเสียงสำหรับเหตุการณ์ต่างๆ
-  function playCorrectSound() {
-    if (!soundEnabled) return;
-    playSound('sine', 880, 0.15); // A5
-    setTimeout(() => playSound('sine', 1318.51, 0.15), 150); // E6
-  }
-  
-  function playWrongSound() {
-    if (!soundEnabled) return;
-    playSound('sine', 415.30, 0.1); // G#4
-    setTimeout(() => playSound('sine', 369.99, 0.2), 100); // F#4
-  }
-  
-  function playTimeoutSound() {
-    if (!soundEnabled) return;
-    playSound('sawtooth', 277.18, 0.1); // C#4
-    setTimeout(() => playSound('sawtooth', 233.08, 0.2), 100); // A#3
-  }
-  
-  function playLoseLifeSound() {
-    if (!soundEnabled) return;
-    playSound('sawtooth', 622.25, 0.05); // D#5
-    setTimeout(() => playSound('sawtooth', 415.30, 0.2), 50); // G#4
-  }
-  
-  function playButtonSound() {
-    if (!soundEnabled) return;
-    playSound('sine', 440, 0.08); // A4
-  }
-  
-  function playLevelUpSound() {
-    if (!soundEnabled) return;
-    playSound('sine', 523.25, 0.1); // C5
-    setTimeout(() => playSound('sine', 659.25, 0.1), 100); // E5
-    setTimeout(() => playSound('sine', 783.99, 0.1), 200); // G5
-    setTimeout(() => playSound('sine', 1046.50, 0.2), 300); // C6
-  }
-  
-  // ปรับระดับความดังเสียง
-  function setVolume(value) {
-    volumeLevel = value / 100;
-    if (masterGainNode) {
-      masterGainNode.gain.value = volumeLevel;
+
+    function playWrongSound() {
+      if (!soundEnabled) return;
+      playSound('sine', 415.30, 0.1); // G#4
+      setTimeout(() => playSound('sine', 369.99, 0.2), 100); // F#4
     }
-    document.getElementById('volumeValue').textContent = `${value}%`;
-  }
-  
-  // เปิด/ปิดเสียง
-  function toggleSound() {
-    soundEnabled = !soundEnabled;
-    const soundToggle = document.getElementById('soundToggle');
-    
-    if (soundEnabled) {
-      soundToggle.classList.remove('muted');
-      soundToggle.innerHTML = `
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" 
-          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-          <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
-          <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
-        </svg>
-      `;
-      playButtonSound(); // เล่นเสียงเมื่อเปิดเสียง
-    } else {
-      soundToggle.classList.add('muted');
-      soundToggle.innerHTML = `
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" 
-          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-          <line x1="23" y1="9" x2="17" y2="15"></line>
-          <line x1="17" y1="9" x2="23" y2="15"></line>
-        </svg>
-      `;
+
+    function playTimeoutSound() {
+      if (!soundEnabled) return;
+      playSound('sawtooth', 277.18, 0.1); // C#4
+      setTimeout(() => playSound('sawtooth', 233.08, 0.2), 100); // A#3
     }
-  }
-  
-  // แสดง/ซ่อนตัวปรับความดังเสียง
-  function toggleVolumeSlider() {
-    const volumeContainer = document.getElementById('volumeContainer');
-    const currentDisplay = volumeContainer.style.display;
-    volumeContainer.style.display = currentDisplay === 'flex' ? 'none' : 'flex';
-  }
+
+    function playLoseLifeSound() {
+      if (!soundEnabled) return;
+      playSound('sawtooth', 622.25, 0.05); // D#5
+      setTimeout(() => playSound('sawtooth', 415.30, 0.2), 50); // G#4
+    }
+
+    function playButtonSound() {
+      if (!soundEnabled) return;
+      playSound('sine', 440, 0.08); // A4
+    }
+
+    function playLevelUpSound() {
+      if (!soundEnabled) return;
+      playSound('sine', 523.25, 0.1); // C5
+      setTimeout(() => playSound('sine', 659.25, 0.1), 100); // E5
+      setTimeout(() => playSound('sine', 783.99, 0.1), 200); // G5
+      setTimeout(() => playSound('sine', 1046.50, 0.2), 300); // C6
+    }
+
+    // ปรับระดับความดังเสียง
+    function setVolume(value) {
+      volumeLevel = value / 100;
+      if (masterGainNode) {
+        masterGainNode.gain.value = volumeLevel;
+      }
+      document.getElementById('volumeValue').textContent = `${value}%`;
+    }
+
+    // เปิด/ปิดเสียง
+    function toggleSound() {
+      soundEnabled = !soundEnabled;
+      const soundToggle = document.getElementById('soundToggle');
+      
+      if (soundEnabled) {
+        soundToggle.classList.remove('muted');
+        soundToggle.innerHTML = `
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" 
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+          </svg>
+        `;
+        // ต้องมั่นใจว่าเสียงถูกเริ่มต้นแล้วก่อนที่จะเล่นเสียง
+        if (!audioInitialized) {
+          initAudio();
+        }
+        if (audioInitialized) {
+          playButtonSound(); // เล่นเสียงเมื่อเปิดเสียง
+        }
+      } else {
+        soundToggle.classList.add('muted');
+        soundToggle.innerHTML = `
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" 
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <line x1="23" y1="9" x2="17" y2="15"></line>
+            <line x1="17" y1="9" x2="23" y2="15"></line>
+          </svg>
+        `;
+      }
+    }
+
+    // แสดง/ซ่อนตัวปรับความดังเสียง
+    function toggleVolumeSlider() {
+      const volumeContainer = document.getElementById('volumeContainer');
+      const currentDisplay = volumeContainer.style.display;
+      volumeContainer.style.display = currentDisplay === 'flex' ? 'none' : 'flex';
+    }
 
     // ฟังก์ชันตรวจสอบว่า localStorage ใช้งานได้หรือไม่
     function isLocalStorageAvailable() {
@@ -2342,18 +2370,27 @@
       incorrectCount: 0,
       missedWords: [],
       history: getStoredData('wordHistory', []),
-      usedWords: [] // เพิ่มตัวแปรนี้
+      usedWords: [], // เพิ่มตัวแปรนี้
+      reviewIndex: 0
     };
 
     let timerInterval;
 
     // ฟังก์ชันหลักของเกม
     function startGame() {
+      // เริ่มต้นระบบเสียงเมื่อผู้ใช้เริ่มเกม
+      if (!audioInitialized) {
+        initAudio();
+      }
+      
       // ตรวจสอบว่ามีคำศัพท์เพียงพอหรือไม่
       if (vocabularyData.length < 4) {
         alert("Please add more vocabulary data to start the game (at least 4 words)");
         return;
       }
+      
+      // เล่นเสียงปุ่ม
+      playButtonSound();
       
       resetGame();
       showScreen('gameScreen');
@@ -2380,6 +2417,9 @@
       document.querySelectorAll('.screen').forEach(screen => screen.classList.remove('active'));
       document.getElementById(screenId).classList.add('active');
       if (screenId === 'homeScreen') updateTotalStars();
+      
+      // เล่นเสียงเมื่อเปลี่ยนหน้าจอ
+      playButtonSound();
     }
 
     function loadNextWord() {
@@ -2459,6 +2499,7 @@
         gameState.combo++;
         gameState.progress += 10;
         showEffect('correct');
+        playCorrectSound();
         if (gameState.combo > 1) showComboEffect();
       } else {
         gameState.lives--;
@@ -2466,6 +2507,8 @@
         gameState.combo = 0;
         gameState.missedWords.push(vocabularyData[gameState.currentWordIndex]);
         showEffect('wrong');
+        playWrongSound();
+        playLoseLifeSound();
         updateHistory(vocabularyData[gameState.currentWordIndex]);
       }
 
@@ -2549,6 +2592,7 @@
       gameState.totalStars += starsEarned;
       saveData('totalStars', gameState.totalStars);
       showLevelUpEffect(starsEarned);
+      playLevelUpSound();
       setTimeout(() => {
         loadNextWord();
         startTimer();
@@ -2571,6 +2615,7 @@
       const timeoutMessage = document.getElementById('timeoutMessage');
       timeoutMessage.style.display = 'block';
       document.getElementById('timeoutAnswer').textContent = vocabularyData[gameState.currentWordIndex].thai;
+      playTimeoutSound();
       setTimeout(() => timeoutMessage.style.display = 'none', 2000);
     }
 
@@ -2583,7 +2628,7 @@
       document.getElementById('levelReached').textContent = gameState.level;
       if (gameState.missedWords.length > 0) {
         document.getElementById('missedWordsSection').style.display = 'block';
-        document.getElementById('reviewButton').style.display = 'block';
+        document.getElementById('reviewBtn').style.display = 'block';
         const missedList = document.getElementById('missedWordsList');
         missedList.innerHTML = '';
         gameState.missedWords.forEach(word => {
@@ -2593,14 +2638,25 @@
                 <div class="word">${word.word}</div>
                 <div class="meaning">${word.thai}</div>
               </div>
-              <button class="missed-word-sound" onclick="speakText('${word.word}')">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 10s2-2 5-2 5 2 5 2 2-2 5-2 5 2 5 2"/><path d="M2 17s2-2 5-2 5 2 5 2 2-2 5-2 5 2 5 2"/></svg>
+              <button class="missed-word-sound" data-word="${word.word}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                  <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                </svg>
               </button>
             </div>`;
         });
+        
+        // เพิ่ม event listeners สำหรับปุ่มเสียงคำศัพท์
+        document.querySelectorAll('.missed-word-sound').forEach(btn => {
+          btn.addEventListener('click', function() {
+            speakText(this.dataset.word);
+            playButtonSound();
+          });
+        });
       } else {
         document.getElementById('missedWordsSection').style.display = 'none';
-        document.getElementById('reviewButton').style.display = 'none';
+        document.getElementById('reviewBtn').style.display = 'none';
       }
       const starsEarned = Math.min(Math.floor(gameState.score / 50), 3);
       if (starsEarned > 0) {
@@ -2631,6 +2687,10 @@
     }
 
     function speakWord() {
+      if (!audioInitialized) {
+        initAudio();
+      }
+      playButtonSound();
       speakText(vocabularyData[gameState.currentWordIndex].word);
     }
 
@@ -2654,6 +2714,7 @@
       showScreen('reviewScreen');
       gameState.reviewIndex = 0;
       loadReviewWord();
+      playButtonSound();
     }
 
     function loadReviewWord() {
@@ -2681,9 +2742,11 @@
       document.getElementById('meaningSection').style.display = 'block';
       document.getElementById('relatedWordsSection').style.display = 'block';
       document.getElementById('showMeaningBtn').style.display = 'none';
+      playButtonSound();
     }
 
     function nextReviewWord() {
+      playButtonSound();
       if (gameState.reviewIndex < gameState.missedWords.length - 1) {
         gameState.reviewIndex++;
         loadReviewWord();
@@ -2693,6 +2756,7 @@
     }
 
     function prevReviewWord() {
+      playButtonSound();
       if (gameState.reviewIndex > 0) {
         gameState.reviewIndex--;
         loadReviewWord();
@@ -2704,6 +2768,10 @@
     }
 
     function speakReviewWord() {
+      if (!audioInitialized) {
+        initAudio();
+      }
+      playButtonSound();
       speakText(gameState.missedWords[gameState.reviewIndex].word);
     }
 
@@ -2732,13 +2800,52 @@
     function reviewAllWords() {
       gameState.missedWords = [...gameState.history];
       startReview();
+      playButtonSound();
     }
 
-    // Event listeners
-    document.getElementById('historyScreen').addEventListener('transitionend', () => {
-      if (document.getElementById('historyScreen').classList.contains('active')) loadHistory();
+    // เพิ่ม Event Listeners
+    document.addEventListener('DOMContentLoaded', function() {
+      // เตรียมพร้อมปุ่มต่างๆ
+      document.getElementById('startGameBtn').addEventListener('click', startGame);
+      document.getElementById('historyBtn').addEventListener('click', function() {
+        loadHistory();
+      });
+      document.getElementById('soundToggle').addEventListener('click', function() {
+        toggleSound();
+      });
+      document.getElementById('volumeSlider').addEventListener('input', function() {
+        setVolume(this.value);
+      });
+      document.getElementById('speakWordBtn').addEventListener('click', speakWord);
+      document.getElementById('homeBtn').addEventListener('click', function() {
+        showScreen('homeScreen');
+      });
+      document.getElementById('playAgainBtn').addEventListener('click', startGame);
+      document.getElementById('reviewBtn').addEventListener('click', startReview);
+      document.getElementById('backToSummaryBtn').addEventListener('click', backToSummary);
+      document.getElementById('showMeaningBtn').addEventListener('click', showMeaning);
+      document.getElementById('prevWordBtn').addEventListener('click', prevReviewWord);
+      document.getElementById('nextWordBtn').addEventListener('click', nextReviewWord);
+      document.getElementById('speakReviewWordBtn').addEventListener('click', speakReviewWord);
+      document.getElementById('backToHomeBtn').addEventListener('click', function() {
+        showScreen('homeScreen');
+      });
+      document.getElementById('startFirstGameBtn').addEventListener('click', startGame);
+      document.getElementById('reviewAllBtn').addEventListener('click', reviewAllWords);
+      
+      // ให้หน้าจอใดๆ ที่คลิกหรือแตะ เริ่มต้นระบบเสียง
+      document.querySelectorAll('.screen').forEach(screen => {
+        screen.addEventListener('click', function() {
+          if (!audioInitialized) {
+            initAudio();
+          }
+        });
+      });
+      
+      // แสดงข้อมูลดาวที่สะสมได้
+      updateTotalStars();
     });
-
+    
     // แก้ไขปัญหาการซูมบน iOS
     document.addEventListener('gesturestart', function(e) {
       e.preventDefault();
